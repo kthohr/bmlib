@@ -74,9 +74,17 @@ class bvartvp
 
         arma::cube irfs;          // irfs based on the posterior draws
 
+        //
         // member functions
-        ~bvartvp(){};
-         bvartvp(){};
+
+        ~bvartvp() = default;
+         bvartvp() = default;
+
+        bvartvp(const bvartvp&) = default;
+        bvartvp& operator=(const bvartvp&) = default;
+
+        bvartvp(bvartvp&&) = default;
+        bvartvp& operator=(bvartvp&&) = default;
 
         void build(const arma::mat& data_raw, const bool cons_term_inp, const int p_inp);
         // void build(const arma::mat& data_raw, const arma::mat& data_ext);

@@ -30,7 +30,7 @@ template<class T>
 class dsgevar
 {
     public:
-
+        //
         // objects
 
         bool cons_term; // if there is a constant (intercept) in the model
@@ -71,6 +71,15 @@ class dsgevar
 
         //
         // member functions
+
+        ~dsgevar() = default;
+         dsgevar() = default;
+
+        dsgevar(const dsgevar&) = default;
+        dsgevar& operator=(const dsgevar&) = default;
+
+        dsgevar(dsgevar&&) = default;
+        dsgevar& operator=(dsgevar&&) = default;
 
         void build(const arma::mat& data_raw, const bool cons_term_inp, const int p_inp, const double lambda_inp);
 

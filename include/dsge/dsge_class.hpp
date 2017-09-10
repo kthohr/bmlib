@@ -70,6 +70,15 @@ class dsge
         //
         // member functions
 
+        ~dsge() = default;
+         dsge() = default;
+
+        dsge(const dsge&) = default;
+        dsge& operator=(const dsge&) = default;
+
+        dsge(dsge&&) = default;
+        dsge& operator=(dsge&&) = default;
+
         void set_bounds(const arma::vec& lower_bounds_inp, const arma::vec& upper_bounds_inp);
         void set_prior(const arma::uvec& prior_form_inp, const arma::mat& prior_pars_inp);
 

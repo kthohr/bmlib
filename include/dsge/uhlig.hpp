@@ -58,7 +58,18 @@ class uhlig
         // covariance matrix of shocks
         arma::mat shocks_cov;
 
+        //
         // member functions
+
+        ~uhlig() = default;
+         uhlig() = default;
+
+        uhlig(const uhlig&) = default;
+        uhlig& operator=(const uhlig&) = default;
+
+        uhlig(uhlig&&) = default;
+        uhlig& operator=(uhlig&&) = default;
+
         void build(const arma::mat& A_inp, const arma::mat& B_inp, const arma::mat& C_inp, const arma::mat& D_inp, 
                    const arma::mat& F_inp, const arma::mat& G_inp, const arma::mat& H_inp, const arma::mat& J_inp, 
                    const arma::mat& K_inp, const arma::mat& L_inp, const arma::mat& M_inp, const arma::mat& N_inp);

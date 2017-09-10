@@ -48,7 +48,18 @@ class gensys
         // covariance matrix of shocks
         arma::mat shocks_cov;
 
+        //
         // member functions
+
+        ~gensys() = default;
+         gensys() = default;
+
+        gensys(const gensys&) = default;
+        gensys& operator=(const gensys&) = default;
+
+        gensys(gensys&&) = default;
+        gensys& operator=(gensys&&) = default;
+
         void build(const arma::mat& Gamma_0_inp, const arma::mat& Gamma_1_inp, const arma::mat& Gamma_C_inp, const arma::mat& Psi_inp, const arma::mat& Pi_inp);
 
         void solve();

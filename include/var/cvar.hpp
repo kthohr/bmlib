@@ -46,9 +46,17 @@ class cvar
 
         arma::cube irfs;         // irfs based on the bootstrap draws
 
+        //
         // member functions
+
         ~cvar() = default;
          cvar() = default;
+
+        cvar(const cvar&) = default;
+        cvar& operator=(const cvar&) = default;
+
+        cvar(cvar&&) = default;
+        cvar& operator=(cvar&&) = default;
 
         void build(const arma::mat& data_raw, const bool cons_term_inp, const int p_inp);
         void build(const arma::mat& data_raw, const arma::mat& data_ext, const bool cons_term_inp, const int p_inp);
