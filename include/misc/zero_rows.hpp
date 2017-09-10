@@ -21,12 +21,6 @@
 
 /*
  * find rows with all zero elements
- *
- * Keith O'Hara
- * 01/01/2014
- *
- * This version:
- * 06/13/2017
  */
 
 #ifndef _bmlib_zero_rows_HPP

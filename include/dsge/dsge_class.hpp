@@ -23,8 +23,8 @@
  * DSGE model class
  */
 
-#ifndef _bmlib_dsge_HPP
-#define _bmlib_dsge_HPP
+#ifndef _bmlib_dsge_class_HPP
+#define _bmlib_dsge_class_HPP
 
 template<class T>
 class dsge

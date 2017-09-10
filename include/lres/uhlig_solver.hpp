@@ -22,14 +22,10 @@
 /* 
  * Uhlig's method for solving linear rational  expectations
  * models using a generalized eigen decomposition.
- *
- * Written by
- * Keith O'Hara
- * 07/01/12
- *
- * This version:
- * 01/03/17
  */
+
+#ifndef _bmlib_uhlig_solver_HPP
+#define _bmlib_uhlig_solver_HPP
 
 int uhlig_solver(const arma::mat& A, const arma::mat& B, const arma::mat& C, const arma::mat& D,
                  const arma::mat& F, const arma::mat& G, const arma::mat& H, const arma::mat& J, const arma::mat& K, const arma::mat& L, const arma::mat& M, const arma::mat& N,
@@ -39,3 +35,5 @@ int uhlig_solver(const arma::mat& A, const arma::mat& B, const arma::mat& C, con
 int uhlig_solver(const arma::mat& A, const arma::mat& B, const arma::mat& C, const arma::mat& D,
                  const arma::mat& F, const arma::mat& G, const arma::mat& H, const arma::mat& J, const arma::mat& K, const arma::mat& L, const arma::mat& M, const arma::mat& N,
                  arma::mat& P, arma::mat& Q, arma::mat& R, arma::mat& S);
+
+#endif

@@ -30,11 +30,15 @@ embed(const arma::mat& X, const int p)
     const int n = X.n_rows;
     const int k = X.n_cols;
 
+    //
+
     arma::mat ret(n-p,k*(p+1));
     
     for (int i=0; i < (p+1); i++) {
         ret.cols(i*k,(i+1)*k-1) = X.rows(p-i,n-i-1);
     }
+
     //
+
     return ret;
 }

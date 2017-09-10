@@ -23,8 +23,8 @@
  * DSGE-VAR model class
  */
 
-#ifndef _bmlib_dsgevar_HPP
-#define _bmlib_dsgevar_HPP
+#ifndef _bmlib_dsgevar_class_HPP
+#define _bmlib_dsgevar_class_HPP
 
 template<class T>
 class dsgevar

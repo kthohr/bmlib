@@ -21,12 +21,6 @@
 
 /*
  * Kalman filter and smoother
- *
- * Keith O'Hara
- * 01/01/2012
- *
- * This version:
- * 08/14/2017
  */
 
 #ifndef _bmlib_kalman_HPP

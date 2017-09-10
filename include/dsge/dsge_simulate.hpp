@@ -23,23 +23,11 @@
  * Simulate data from a DSGE Model
  */
 
-inline
-arma::mat
-dsge_simulate(const arma::mat& F_state, const arma::mat& G_state, const arma::mat& shocks_cov, const int sim_periods, const int burnin)
-{
-    // const int n_shocks = G_state.n_cols;
+#ifndef _bmlib_dsge_simulate_HPP
+#define _bmlib_dsge_simulate_HPP
 
-    arma::mat dsge_sim_mat(sim_periods+burnin,F_state.n_cols);
+arma::mat dsge_simulate(const arma::mat& F_state, const arma::mat& G_state, const arma::mat& shocks_cov, const int sim_periods, const int burnin);
 
-    arma::mat shocks = stats::rmvnorm(sim_periods + burnin, shocks_cov);
-    //
-    dsge_sim_mat.row(0) = shocks.row(0) * G_state.t();
+#include "dsge_simulate.ipp"
 
-    for (int i = 1; i < (sim_periods + burnin); i++) {
-        dsge_sim_mat.row(i) = dsge_sim_mat.row(i-1) * F_state.t() + shocks.row(i) * G_state.t();
-    }
-
-    dsge_sim_mat.shed_rows(0,burnin-1);
-    //
-    return dsge_sim_mat;
-}
+#endif

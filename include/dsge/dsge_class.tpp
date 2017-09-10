@@ -287,4 +287,3 @@ dsge<T>::IRF(const int n_irf_periods)
     }
     //
 }
-

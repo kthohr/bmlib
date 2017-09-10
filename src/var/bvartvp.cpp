@@ -14,6 +14,9 @@
   ##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   ##   GNU General Public License for more details.
   ##
+  ##   You should have received a copy of the GNU General Public License
+  ##   along with BMLib. If not, see <http://www.gnu.org/licenses/>.
+  ##
   ################################################################################*/
 
 /*
@@ -165,6 +168,9 @@ bm::bvartvp::gibbs(const int n_draws, const int n_burnin)
 
     arma::mat inv_alpha_pr_var = arma::inv(alpha_pr_var);
 
+    // arma::mat Q_draw = Q_pr_scale / (double) Q_pr_dof;
+    // arma::mat Q_chol = arma::chol(Q_draw,"lower");
+
     Q_pt_dof = n_adj + Q_pr_dof;
     Sigma_pt_dof = n_adj + Sigma_pr_dof;
 
@@ -177,7 +183,7 @@ bm::bvartvp::gibbs(const int n_draws, const int n_burnin)
 
     // storage
 
-    alpha_draws = arma::zeros(K*M,(n_adj+1),n_draws);
+    alpha_draws  = arma::zeros(K*M,(n_adj+1),n_draws);
     Q_draws     = arma::zeros(K*M,K*M,n_draws);
     Sigma_draws = arma::zeros(M,M,n_draws);
 

@@ -28,7 +28,9 @@
 
 inline
 void
-uhlig::build(const arma::mat& A_inp, const arma::mat& B_inp, const arma::mat& C_inp, const arma::mat& D_inp, const arma::mat& F_inp, const arma::mat& G_inp, const arma::mat& H_inp, const arma::mat& J_inp, const arma::mat& K_inp, const arma::mat& L_inp, const arma::mat& M_inp, const arma::mat& N_inp)
+uhlig::build(const arma::mat& A_inp, const arma::mat& B_inp, const arma::mat& C_inp, const arma::mat& D_inp, 
+             const arma::mat& F_inp, const arma::mat& G_inp, const arma::mat& H_inp, const arma::mat& J_inp, 
+             const arma::mat& K_inp, const arma::mat& L_inp, const arma::mat& M_inp, const arma::mat& N_inp)
 {
     A = A_inp;
     B = B_inp;
@@ -58,7 +60,8 @@ uhlig::build_pre(const arma::mat& A_inp, const arma::mat& B_inp, const arma::mat
 
 inline
 void
-uhlig::build_exp(const arma::mat& F_inp, const arma::mat& G_inp, const arma::mat& H_inp, const arma::mat& J_inp, const arma::mat& K_inp, const arma::mat& L_inp, const arma::mat& M_inp)
+uhlig::build_exp(const arma::mat& F_inp, const arma::mat& G_inp, const arma::mat& H_inp, const arma::mat& J_inp, 
+                 const arma::mat& K_inp, const arma::mat& L_inp, const arma::mat& M_inp)
 {
     F = F_inp;
     G = G_inp;

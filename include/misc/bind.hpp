@@ -20,39 +20,18 @@
   ################################################################################*/
 
 /*
- * *bind methods; mimics R's rbind and cbind
- *
- * Keith O'Hara
- * 01/01/2012
- *
- * This version:
- * 08/14/2017
+ * bind methods; mimics R's rbind and cbind
  */
 
-inline
-arma::mat
-cbind(const arma::mat& mat_1, const arma::mat& mat_2)
-{
-    return arma::join_rows(mat_1,mat_2);
-}
+#ifndef _bmlib_bind_HPP
+#define _bmlib_bind_HPP
 
-inline
-arma::mat
-cbind(const arma::mat& mat_1, const arma::mat& mat_2, const arma::mat& mat_3)
-{
-    return cbind(cbind(mat_1,mat_2),mat_3);
-}
+arma::mat cbind(const arma::mat& mat_1, const arma::mat& mat_2);
+arma::mat cbind(const arma::mat& mat_1, const arma::mat& mat_2, const arma::mat& mat_3);
 
-inline
-arma::mat
-rbind(const arma::mat& mat_1, const arma::mat& mat_2)
-{
-    return arma::join_cols(mat_1,mat_2);
-}
+arma::mat rbind(const arma::mat& mat_1, const arma::mat& mat_2);
+arma::mat rbind(const arma::mat& mat_1, const arma::mat& mat_2, const arma::mat& mat_3);
 
-inline
-arma::mat
-rbind(const arma::mat& mat_1, const arma::mat& mat_2, const arma::mat& mat_3)
-{
-    return rbind(rbind(mat_1,mat_2),mat_3);
-}
+#include "bind.ipp"
+
+#endif

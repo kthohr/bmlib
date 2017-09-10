@@ -23,6 +23,11 @@
  * Embed a matrix
  */
 
-arma::mat embed(const arma::mat& X, int p);
+#ifndef _bmlib_embed_HPP
+#define _bmlib_embed_HPP
+
+arma::mat embed(const arma::mat& X, const int p);
 
 #include "embed.ipp"
+
+#endif
