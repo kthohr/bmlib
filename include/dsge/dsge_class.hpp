@@ -79,6 +79,7 @@ class dsge
 
         void solve_to_state_space(const arma::vec& pars_inp);
 
+        double log_prior(const arma::vec& pars_inp);
         double log_posterior_kernel(const arma::vec& pars_inp);
 
         arma::vec estim_mode(const arma::vec& initial_vals);
@@ -90,8 +91,6 @@ class dsge
         void IRF(const int n_irf_periods);
 
     protected:
-        double log_prior(const arma::vec& pars_inp);
-
         static double mode_objfn(const arma::vec& pars_inp, arma::vec* grad_vec, void* mode_data);
         static double mcmc_objfn(const arma::vec& pars_inp, void* mode_data);
 };
