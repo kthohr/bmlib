@@ -1,0 +1,85 @@
+
+# core compiling options
+
+CC  = @CC@
+CXX = @CXX@
+FC  = @FC@
+
+CXX_STD= -std=c++11
+OPT_FLAGS= @BM_WARN_FLAGS@ @BM_OPT_FLAGS@
+
+ARMA_INCLUDE_PATH = @ARMA_INCLUDE_PATH@
+
+# install location
+INSTALL_PATH=@BM_INSTALL_PATH@
+
+# source directories
+SDIR= .
+BM_DIR= $(SDIR)
+BM_SRC_DIR= $(SDIR)/src
+BM_HEADER_DIR= $(SDIR)/include
+BM_TEST_DIR= $(SDIR)/tests
+
+OPTIM_SRC_DIR= $(BM_SRC_DIR)/optim
+MCMC_SRC_DIR= $(BM_SRC_DIR)/mcmc
+
+# shared library name and flags
+SHLIB= @BM_SHLIB_NAME@
+SHLIB_FLAGS= $(CXX_STD) @BM_SHLIB_FLAGS@
+
+# general flags
+CXXFLAGS= $(CXX_STD) $(OPT_FLAGS) -I$(ARMA_INCLUDE_PATH) -I$(BM_HEADER_DIR)
+FFLAGS= $(OPT_FLAGS)
+LIBS= -lgfortran @BM_BLAS_LAPACK@
+
+# Optim and MCMC files
+SOURCES_MCMC= $(MCMC_SRC_DIR)/de.cpp $(MCMC_SRC_DIR)/rwmh.cpp
+OBJECTS_MCMC= $(SOURCES_MCMC:.cpp=.o)
+
+SOURCES_OPTIM= $(OPTIM_SRC_DIR)/line_search/more_thuente.cpp $(OPTIM_SRC_DIR)/unconstrained/bfgs.cpp $(OPTIM_SRC_DIR)/unconstrained/cg.cpp $(OPTIM_SRC_DIR)/unconstrained/de.cpp $(OPTIM_SRC_DIR)/unconstrained/de_prmm.cpp $(OPTIM_SRC_DIR)/unconstrained/nm.cpp $(OPTIM_SRC_DIR)/unconstrained/pso.cpp $(OPTIM_SRC_DIR)/unconstrained/pso_dv.cpp
+OBJECTS_OPTIM= $(SOURCES_OPTIM:.cpp=.o)
+
+# core BM files
+SOURCES_BM_VAR= $(BM_SRC_DIR)/var/bvarm.cpp $(BM_SRC_DIR)/var/bvars.cpp $(BM_SRC_DIR)/var/bvarw.cpp $(BM_SRC_DIR)/var/bvartvp.cpp $(BM_SRC_DIR)/var/cvar.cpp
+OBJECTS_BM_VAR= $(SOURCES_BM_VAR:.cpp=.o)
+
+SOURCES_BM_FILT= $(BM_SRC_DIR)/filter/kalman.cpp $(BM_SRC_DIR)/filter/chandrasekhar.cpp
+OBJECTS_BM_FILT= $(SOURCES_BM_FILT:.cpp=.o)
+
+SOURCES_BM_LRES= $(BM_SRC_DIR)/lres/gensys_solver.cpp $(BM_SRC_DIR)/lres/uhlig_solver.cpp
+OBJECTS_BM_LRES= $(SOURCES_BM_LRES:.cpp=.o)
+
+OBJECTS_BM= $(OBJECTS_OPTIM) $(OBJECTS_MCMC) $(OBJECTS_BM_VAR) $(OBJECTS_BM_FILT) $(OBJECTS_BM_LRES)
+
+all: $(BM_DIR)/$(SHLIB) $(OBJECTS_BM)
+
+#
+$(OPTIM_SRC_DIR)/line_search/%.o: $(OPTIM_SRC_DIR)/line_search/%.cpp
+	$(CXX) $(CXXFLAGS) -I$(SDIR)/include/optim $< -c -o $@
+
+$(OPTIM_SRC_DIR)/unconstrained/%.o: $(OPTIM_SRC_DIR)/unconstrained/%.cpp
+	$(CXX) $(CXXFLAGS) -I$(SDIR)/include/optim $< -c -o $@
+
+$(MCMC_SRC_DIR)/%.o: $(MCMC_SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -I$(SDIR)/include/mcmc $< -c -o $@
+
+$(BM_SRC_DIR)/var/%.o: $(BM_SRC_DIR)/var/%.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+$(BM_SRC_DIR)/lres/%.o: $(BM_SRC_DIR)/lres/%.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+# shared library
+$(BM_DIR)/$(SHLIB): $(OBJECTS_BM)
+	$(CXX) $(SHLIB_FLAGS) -o $@ $^ $(LIBS)
+
+# cleanup and install
+.PHONY: clean
+clean:
+	@rm -f *.so ./tests/*/*.test ./tests/*/*.o $(BM_SRC_DIR)/*/*.o $(BM_SRC_DIR)/*/*/*.o
+
+.PHONY: install
+install: $(SHLIB)
+	@cp $(BM_DIR)/$(SHLIB) $(INSTALL_PATH)/lib/$(SHLIB)
+	@mkdir -p $(INSTALL_PATH)/include/bmlib
+	@cp -r $(BM_DIR)/headers/* $(INSTALL_PATH)/include/bmlib
