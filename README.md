@@ -1,0 +1,2 @@
+# bmlib
+Bayesian Macroeconometrics
