@@ -40,6 +40,8 @@ CLANG_COMPILER=$($CXX --version 2>&1 | grep -i -c -E '(llvm|clang)')
 APPLE_COMPILER=$($CXX --version 2>&1 | grep -i -c -E 'apple llvm')
 MACPORTS_COMPILER=$($CXX --version 2>&1 | grep -i -c "macports")
 
+IS_FAST_OPT=0
+
 # we don't want to limit Apple users who have an OpenMP-enabled compiler
 
 # announcements
@@ -165,7 +167,7 @@ else
     BM_SHLIB_FLAGS="${BM_LTO_FLAGS} ${BM_SHLIB_FLAGS}"
 fi
 
-if [ "$IS_FAST_OPT" -eq 1 ] && [ "$IS_DARWIN" -eq "1" ] && [ "$MACPORTS_COMPILER" -eq "1" ] && [ "$CLANG_COMPILER" -eq "0" ]; then
+if [ "$IS_FAST_OPT" -eq "1" ] && [ "$IS_DARWIN" -eq "1" ] && [ "$MACPORTS_COMPILER" -eq "1" ] && [ "$CLANG_COMPILER" -eq "0" ]; then
     echo ""
     echo "BM: To use AVX features, we will use the Apple LLVM assembler"
     BM_OPT_FLAGS="-Wa,-q ${BM_OPT_FLAGS}"

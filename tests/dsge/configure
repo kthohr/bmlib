@@ -39,6 +39,8 @@ CLANG_COMPILER=$($CXX --version 2>&1 | grep -i -c -E '(llvm|clang)')
 APPLE_COMPILER=$($CXX --version 2>&1 | grep -i -c -E 'apple llvm')
 MACPORTS_COMPILER=$($CXX --version 2>&1 | grep -i -c "macports")
 
+IS_FAST_OPT=0
+
 # we don't want to limit Apple users who have an OpenMP-enabled compiler
 
 # announcements
@@ -134,7 +136,7 @@ else
     fi
 fi
 
-if [ "$IS_FAST_OPT" -eq 1 ] && [ "$IS_DARWIN" -eq "1" ] && [ "$MACPORTS_COMPILER" -eq "1" ] && [ "$CLANG_COMPILER" -eq "0" ]; then
+if [ "$IS_FAST_OPT" -eq "1" ] && [ "$IS_DARWIN" -eq "1" ] && [ "$MACPORTS_COMPILER" -eq "1" ] && [ "$CLANG_COMPILER" -eq "0" ]; then
     BM_OPT_FLAGS="-Wa,-q ${BM_OPT_FLAGS}"
 fi
 
