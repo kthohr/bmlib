@@ -61,8 +61,6 @@ class dsge
 
         arma::mat dsge_draws;
 
-        arma::cube irfs;
-
         // a function mapping the 'deep' parameters to the structural matrices
 
         std::function<void (const arma::vec& pars_inp, T& lrem_obj_inp, arma::mat& shocks_cov_out, arma::mat& C_out, arma::mat& H_out, arma::mat& R_out)> model_fn;
@@ -97,7 +95,7 @@ class dsge
         void estim_mcmc(const arma::vec& initial_vals);
         void estim_mcmc(const arma::vec& initial_vals, mcmc::mcmc_settings* settings_inp);
 
-        void IRF(const int n_irf_periods);
+        arma::cube IRF(const int n_irf_periods);
 
     protected:
         static double mode_objfn(const arma::vec& pars_inp, arma::vec* grad_vec, void* mode_data);
