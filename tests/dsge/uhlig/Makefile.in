@@ -1,0 +1,37 @@
+
+# core compiling options
+CC  = @CC@
+CXX = @CXX@
+FC  = @FC@
+
+CXX_STD = -std=c++11
+OPT_FLAGS = @BM_WARN_FLAGS@ @BM_OPT_FLAGS@
+
+ARMA_INCLUDE_PATH = @ARMA_INCLUDE_PATH@
+
+# install location
+INSTALL_PATH=@BM_INSTALL_PATH@
+
+# source directories
+SDIR = ./..
+BM_DIR = $(SDIR)
+BM_HEADER_DIR = @BM_INCLUDE_PATH@
+BM_TEST_DIR = .
+
+# general flags
+CXXFLAGS = $(CXX_STD) $(OPT_FLAGS) -I$(ARMA_INCLUDE_PATH) -I$(BM_HEADER_DIR)
+LIBS= @BM_BLAS_LAPACK@ -L@BM_INSTALL_PATH@ -l@BM_SHLIB_NAME@
+
+# BM Test Files
+SOURCES_BM_ARUMS= $(BM_TEST_DIR)/nkm_solve.cpp $(BM_TEST_DIR)/rbc_solve.cpp
+OBJECTS_BM_ARUMS= $(SOURCES_BM_ARUMS:.cpp=.test)
+
+all: $(OBJECTS_BM_ARUMS)
+
+$(BM_TEST_DIR)/%.test: $(BM_TEST_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LIBS)
+
+# cleanup and install
+.PHONY: clean
+clean:
+	@rm -rf *.so ./*.gcov ./*.gcno ./*.gcda ./*.dSYM ./*.test

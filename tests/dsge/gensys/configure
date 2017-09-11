@@ -58,8 +58,8 @@ fi
 WDIR=${PWD}
 
 if [ -z ${ARMA_INCLUDE_PATH+x} ]; then 
-    if [ -f ${WDIR}/../../include/armadillo ]; then 
-        ARMA_INCLUDE_PATH="./../../include"
+    if [ -f ${WDIR}/../../../include/armadillo ]; then 
+        ARMA_INCLUDE_PATH="./../../../include"
     elif [ -f /usr/include/armadillo ]; then
         ARMA_INCLUDE_PATH="/usr/include"
     elif [ -f /usr/local/include/armadillo ]; then
@@ -109,7 +109,7 @@ BM_SHLIB_NAME="bm"
 # dev build
 
 if [[ "${BM_BUILD}" == "dev" ]]; then
-    cd ../..
+    cd ../../..
     BM_INCLUDE_PATH=${PWD}/include
     BM_INSTALL_PATH=${PWD}
     cd ${WDIR}

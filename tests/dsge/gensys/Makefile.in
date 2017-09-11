@@ -23,7 +23,7 @@ CXXFLAGS = $(CXX_STD) $(OPT_FLAGS) -I$(ARMA_INCLUDE_PATH) -I$(BM_HEADER_DIR)
 LIBS= @BM_BLAS_LAPACK@ -L@BM_INSTALL_PATH@ -l@BM_SHLIB_NAME@
 
 # BM Test Files
-SOURCES_BM_ARUMS= $(BM_TEST_DIR)/nkm_solve.cpp $(BM_TEST_DIR)/nkm_estim.cpp $(BM_TEST_DIR)/nkm_var_estim.cpp
+SOURCES_BM_ARUMS= $(BM_TEST_DIR)/nkm_solve.cpp $(BM_TEST_DIR)/nkm_estim.cpp $(BM_TEST_DIR)/nkm_var_estim.cpp $(BM_TEST_DIR)/rbc_solve.cpp
 OBJECTS_BM_ARUMS= $(SOURCES_BM_ARUMS:.cpp=.test)
 
 all: $(OBJECTS_BM_ARUMS)

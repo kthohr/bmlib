@@ -7,12 +7,17 @@ export CXXCOV=gcov
 export LD_LIBRARY_PATH="$PWD":$LD_LIBRARY_PATH
 cd tests
 
-cd dsge
+cd dsge/gensys
 ./configure -b dev -c
 make
 ./cov_check
 
-cd ../var
+cd ../uhlig
+./configure -b dev -c
+make
+./cov_check
+
+cd ../../var
 ./configure -b dev -c
 make
 ./cov_check

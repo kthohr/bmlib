@@ -1,0 +1,158 @@
+#!/bin/bash
+## BMLib tests config script
+
+while getopts b:cm:o:p option; do
+    case "${option}" in
+        b) BM_BUILD=${OPTARG};;
+        c) BM_COVERAGE="y";;
+        m) BM_MATRIX_OPS=${OPTARG};;
+        o) BM_OPT=${OPTARG};;
+        p) BM_PARALLEL="y";;
+    esac
+done
+
+if [ -z ${CC+x} ]; then 
+    CC=gcc
+fi
+if [ -z ${CXX+x} ]; then 
+    CXX=g++
+fi
+if [ -z ${FC+x} ]; then 
+    FC=gfortran
+fi
+
+if [[ !(-z ${KEITH_DEV_SETTINGS+x}) ]]; then
+    CC=gcc-mp-7
+    CXX=g++-mp-7
+    FC=gfortran-mp-7
+fi
+
+# compiler checks
+
+IS_DARWIN=$($CXX -dumpmachine 2>&1 | grep -i -c "darwin")
+IS_LINUX=$($CXX -dumpmachine 2>&1 | grep -i -c "linux")
+IS_CYGWIN=$($CXX -dumpmachine 2>&1 | grep -i -c "cygwin")
+
+GCC_COMPILER=$($CXX --version 2>&1 | grep -v -E '(llvm|clang)' | grep -i -c -E '(gcc|g\+\+)')
+CLANG_COMPILER=$($CXX --version 2>&1 | grep -i -c -E '(llvm|clang)')
+
+APPLE_COMPILER=$($CXX --version 2>&1 | grep -i -c -E 'apple llvm')
+MACPORTS_COMPILER=$($CXX --version 2>&1 | grep -i -c "macports")
+
+IS_FAST_OPT=0
+
+# we don't want to limit Apple users who have an OpenMP-enabled compiler
+
+# announcements
+
+echo ""
+if [[ "${BM_BUILD}" == "dev" ]]; then
+    echo "BM Tests: dev version"
+fi
+
+if [[ "${BM_COVERAGE}" == "y" ]]; then 
+    echo "BM Tests: coverage build"
+fi
+
+# get working directory
+WDIR=${PWD}
+
+if [ -z ${ARMA_INCLUDE_PATH+x} ]; then 
+    if [ -f ${WDIR}/../../../include/armadillo ]; then 
+        ARMA_INCLUDE_PATH="./../../../include"
+    elif [ -f /usr/include/armadillo ]; then
+        ARMA_INCLUDE_PATH="/usr/include"
+    elif [ -f /usr/local/include/armadillo ]; then
+        ARMA_INCLUDE_PATH="/usr/local/include"
+    elif [ -f /opt/include/armadillo ]; then
+        ARMA_INCLUDE_PATH="/opt/include"
+    elif [ -f /opt/local/include/armadillo ]; then
+        ARMA_INCLUDE_PATH="/opt/local/include"
+    else 
+        echo "BM tests: cannot find the armadillo library."
+        echo ""
+        exit 1
+    fi
+fi
+
+echo "BM Tests: ARMA_INCLUDE_PATH set to ${ARMA_INCLUDE_PATH}"
+
+# set build and optimization flags
+
+if [[ "${BM_COVERAGE}" == "y" ]]; then 
+    BM_OPT_FLAGS="-O0 -Wall -g --coverage -fno-inline -fno-inline-small-functions -fno-default-inline"
+else
+    if [[ "${BM_OPT}" == "fast" ]]; then
+        echo "BM Tests: experimental optimization"
+
+        IS_FAST_OPT=1
+
+        BM_OPT_FLAGS="-Ofast -march=native -DARMA_NO_DEBUG"
+    else
+        BM_OPT_FLAGS="-O2"
+    fi
+
+    if [[ "${BM_PARALLEL}" == "y" ]]; then 
+        echo "BM Tests: using OpenMP"
+        BM_OPT_FLAGS="${BM_OPT_FLAGS} -fopenmp -DBM_OMP"
+    fi
+fi
+
+if [[ $OSTYPE == *cygwin* ]] ; then
+    BM_OPT_FLAGS="${BM_OPT_FLAGS} -DARMA_DONT_PRINT_CXX11_WARNING"
+fi
+
+BM_WARN_FLAGS="-Wall"
+
+BM_SHLIB_NAME="bm"
+
+# dev build
+
+if [[ "${BM_BUILD}" == "dev" ]]; then
+    cd ../../..
+    BM_INCLUDE_PATH=${PWD}/include
+    BM_INSTALL_PATH=${PWD}
+    cd ${WDIR}
+else
+    BM_INCLUDE_PATH="/usr/local/include/bmlib"
+    BM_INSTALL_PATH="/usr/local/lib"
+fi
+
+# BLAS and LAPACK settings
+
+if [[ !(-z ${BM_MATRIX_OPS+x}) ]]; then
+    BM_BLAS_LAPACK="${BM_MATRIX_OPS}"
+    echo ""
+    echo "BM Tests: BLAS and Lapack libraries set to ${BM_BLAS_LAPACK}"
+else
+    if [[ $OSTYPE == darwin* ]] ; then
+        BM_BLAS_LAPACK="-framework Accelerate"
+    elif [[ $OSTYPE == *linux* ]] ; then
+        BM_BLAS_LAPACK="-lblas -llapack"
+    elif [[ $OSTYPE == *cygwin* ]] ; then
+        BM_BLAS_LAPACK="-lblas -llapack"
+    else
+        BM_BLAS_LAPACK="-lblas -llapack"
+    fi
+fi
+
+if [ "$IS_FAST_OPT" -eq "1" ] && [ "$IS_DARWIN" -eq "1" ] && [ "$MACPORTS_COMPILER" -eq "1" ] && [ "$CLANG_COMPILER" -eq "0" ]; then
+    BM_OPT_FLAGS="-Wa,-q ${BM_OPT_FLAGS}"
+fi
+
+BM_OPT_FLAGS+=" -DSTATSLIB_GO_INLINE"
+
+echo ""
+# create Makefile
+
+sed -e "s|@CC@|${CC}|" \
+    -e "s|@CXX@|${CXX}|" \
+    -e "s|@FC@|${FC}|" \
+    -e "s|@ARMA_INCLUDE_PATH@|${ARMA_INCLUDE_PATH}|" \
+    -e "s|@BM_BLAS_LAPACK@|${BM_BLAS_LAPACK}|" \
+    -e "s|@BM_WARN_FLAGS@|${BM_WARN_FLAGS}|" \
+    -e "s|@BM_OPT_FLAGS@|${BM_OPT_FLAGS}|" \
+    -e "s|@BM_SHLIB_NAME@|${BM_SHLIB_NAME}|" \
+    -e "s|@BM_INCLUDE_PATH@|${BM_INCLUDE_PATH}|" \
+    -e "s|@BM_INSTALL_PATH@|${BM_INSTALL_PATH}|" \
+    Makefile.in > Makefile
