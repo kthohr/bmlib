@@ -107,7 +107,7 @@ else
 
     if [[ "${BM_PARALLEL}" == "y" ]]; then
         echo "BM: using OpenMP"
-        BM_OPT_FLAGS="${BM_OPT_FLAGS} -fopenmp -DBM_OMP -DOPTIM_OMP -DMCMC_OMP"
+        BM_OPT_FLAGS="${BM_OPT_FLAGS} -fopenmp -DBM_OMP -DOPTIM_OMP -DMCMC_OMP -DARMA_USE_OPENMP -DARMA_USE_CXX11"
     fi
 fi
 
