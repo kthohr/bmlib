@@ -103,6 +103,8 @@ int main()
 
     arma::cout << "mcmc mean:\n" << arma::mean(dsgevar_obj.dsge_obj.dsge_draws) << arma::endl;
 
+    arma::cube fcast = dsgevar_obj.forecast(10,true);
+
     //
 
     bm::tictoc(begin_time);
