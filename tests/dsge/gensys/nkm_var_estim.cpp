@@ -80,8 +80,14 @@ int main()
 
     o_settings.de_check_freq = 50;
 
-    arma::vec res = dsgevar_obj.estim_mode(initial_vals,&o_settings);
+
+    arma::mat vcov_mat;
+    arma::vec res = dsgevar_obj.estim_mode(initial_vals,&vcov_mat,&o_settings);
     arma::cout << "mode:\n" << res << arma::endl;
+    arma::cout << "var-cov matrix:\n" << vcov_mat << arma::endl;
+
+    arma::cube check_vals = bm::mode_check(dsgevar_obj,res,11);
+    arma::cout << "check_vals:\n" << check_vals << arma::endl;
 
     //
 

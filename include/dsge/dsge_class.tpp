@@ -48,6 +48,7 @@ dsge<T>::set_prior(const arma::uvec& prior_form_inp, const arma::mat& prior_pars
 template<typename T>
 void
 dsge<T>::solve()
+const
 {
     lrem_obj.solve();
 }
@@ -55,6 +56,7 @@ dsge<T>::solve()
 template<typename T>
 void
 dsge<T>::state_space(arma::mat& F_state, arma::mat& G_state)
+const
 {
     lrem_obj.state_space(F_state,G_state);
 }
@@ -62,6 +64,7 @@ dsge<T>::state_space(arma::mat& F_state, arma::mat& G_state)
 template<typename T>
 arma::mat
 dsge<T>::simulate(const int sim_periods, const int burnin)
+const
 {
     return lrem_obj.simulate(sim_periods, burnin);
 }
@@ -69,6 +72,7 @@ dsge<T>::simulate(const int sim_periods, const int burnin)
 template<typename T>
 void
 dsge<T>::solve_to_state_space(const arma::vec& pars_inp)
+const
 {
     arma::mat shocks_cov;
     model_fn(pars_inp,lrem_obj,shocks_cov,kalman_mat_C,kalman_mat_H,kalman_mat_R);
@@ -89,6 +93,7 @@ dsge<T>::solve_to_state_space(const arma::vec& pars_inp)
 template<typename T>
 double
 dsge<T>::log_prior(const arma::vec& pars_inp)
+const
 {
     const int n_param = pars_inp.n_elem;
 
@@ -134,6 +139,7 @@ dsge<T>::log_prior(const arma::vec& pars_inp)
 template<typename T>
 double
 dsge<T>::log_posterior_kernel(const arma::vec& pars_inp)
+const
 {
     // setup model and solve
 
@@ -168,12 +174,19 @@ template<typename T>
 arma::vec
 dsge<T>::estim_mode(const arma::vec& initial_vals)
 {
-    return this->estim_mode(initial_vals,nullptr);
+    return this->estim_mode(initial_vals,nullptr,nullptr);
 }
 
 template<typename T>
 arma::vec
-dsge<T>::estim_mode(const arma::vec& initial_vals, optim::opt_settings* settings_inp)
+dsge<T>::estim_mode(const arma::vec& initial_vals, arma::mat& vcov_mat)
+{
+    return this->estim_mode(initial_vals,&vcov_mat,nullptr);
+}
+
+template<typename T>
+arma::vec
+dsge<T>::estim_mode(const arma::vec& initial_vals, arma::mat* vcov_mat, optim::opt_settings* settings_inp)
 {
     dsge_estim_data<T> mode_data;
     mode_data.dsge_obj = *this;
@@ -199,6 +212,14 @@ dsge<T>::estim_mode(const arma::vec& initial_vals, optim::opt_settings* settings
     arma::vec ret_vec = initial_vals;
 
     optim::de(ret_vec,mode_objfn,&mode_data,settings);
+
+    // compute standard errors
+
+    if (vcov_mat) {
+        arma::mat hess_mat = optim::numerical_hessian(ret_vec,nullptr,mode_objfn,&mode_data);
+
+        *vcov_mat = arma::inv(hess_mat);
+    }
 
     //
 
@@ -257,6 +278,7 @@ dsge<T>::estim_mcmc(const arma::vec& initial_vals, mcmc::mcmc_settings* settings
 template<typename T>
 arma::cube
 dsge<T>::IRF(const int n_irf_periods)
+const
 {
     const int n_draws = dsge_draws.n_rows;
 
