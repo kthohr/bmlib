@@ -70,9 +70,9 @@ int main()
 
     int n_irf_periods = 20;
 
-    cvar_model.IRF(n_irf_periods);
+    arma::cube irfs = cvar_model.IRF(n_irf_periods);
 
-    arma::cout << "IRFs:\n" << cvar_model.irfs.slice(0) << arma::endl;
+    arma::cout << "IRFs:\n" << irfs.slice(0) << arma::endl;
 
     //
 
