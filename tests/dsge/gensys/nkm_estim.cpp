@@ -83,6 +83,15 @@ int main()
     arma::cube check_vals = bm::mode_check(dsge_obj,res,11);
     arma::cout << "check_vals:\n" << check_vals << arma::endl;
 
+    // try Chandrasekhar recursions
+
+    dsge_obj.filter_choice = 2;
+
+    res = dsge_obj.estim_mode(initial_vals,&vcov_mat,&o_settings);
+    arma::cout << "mode (Chand):\n" << res << arma::endl;
+
+    dsge_obj.filter_choice = 1; // back to Kalman
+
     //
 
     mcmc::mcmc_settings m_settings;
