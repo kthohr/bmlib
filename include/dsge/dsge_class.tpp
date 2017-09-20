@@ -147,14 +147,21 @@ const
 
     // run filter
 
-    double log_likelihood_val = 0.0; 
-    
-    if (filter_choice == 1) {
-        log_likelihood_val = kalman_filter(estim_data, kalman_mat_F,kalman_mat_Q, kalman_mat_C,kalman_mat_H,kalman_mat_R);
-    } else if (filter_choice == 2) {
-        log_likelihood_val = chand_recur(estim_data, kalman_mat_F,kalman_mat_Q, kalman_mat_C,kalman_mat_H,kalman_mat_R);
-    } else {
-        printf("error: unknown choice for filter\n");
+    double log_likelihood_val = 0.0;
+
+    switch (filter_choice) {
+        case 1:
+            log_likelihood_val = kalman_filter(estim_data, kalman_mat_F,kalman_mat_Q, kalman_mat_C,kalman_mat_H,kalman_mat_R);
+            break;
+
+        case 2:
+            log_likelihood_val = chand_recur(estim_data, kalman_mat_F,kalman_mat_Q, kalman_mat_C,kalman_mat_H,kalman_mat_R);
+            break;
+
+        default:
+            printf("error: unknown choice for filter\n");
+            break;
+
     }
 
     // compute the prior
