@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -30,6 +30,7 @@
 #include "plaplace.hpp"
 #include "plogis.hpp"
 #include "pnorm.hpp"
+#include "pt.hpp"
 #include "punif.hpp"
 
 // these depend on one of the above

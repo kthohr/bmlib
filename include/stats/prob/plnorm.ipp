@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -55,6 +55,8 @@ plnorm(const double x, const double mu_par, const double sigma_par)
 //
 // matrix/vector input
 
+#ifndef STATS_NO_ARMA
+
 inline
 arma::mat
 plnorm_int(const arma::mat& x, const double* mu_par_inp, const double* sigma_par_inp, const bool log_form)
@@ -90,3 +92,5 @@ plnorm(const arma::mat& x, const double mu_par, const double sigma_par, const bo
 {
     return plnorm_int(x,&mu_par,&sigma_par,log_form);
 }
+
+#endif

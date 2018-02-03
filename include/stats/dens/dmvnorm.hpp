@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -23,6 +23,7 @@
 #ifndef _statslib_dmvnorm_HPP
 #define _statslib_dmvnorm_HPP
 
+#ifndef STATS_NO_ARMA
 double dmvnorm_int(const arma::vec& x, const arma::vec* mu_par_inp, const arma::mat* Sigma_par_inp, const bool log_form);
 
 double dmvnorm(const arma::vec& x);
@@ -31,5 +32,7 @@ double dmvnorm(const arma::vec& x, const arma::vec& mu_par, const arma::mat& Sig
 double dmvnorm(const arma::vec& x, const arma::vec& mu_par, const arma::mat& Sigma_par, const bool log_form);
 
 #include "dmvnorm.ipp"
+
+#endif
 
 #endif

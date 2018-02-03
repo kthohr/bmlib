@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -63,6 +63,8 @@ qunif(const double p, const double a_par, const double b_par)
 //
 // matrix/vector input
 
+#ifndef STATS_NO_ARMA
+
 inline
 arma::mat
 qunif_int(const arma::mat& p, const double* a_par_inp, const double* b_par_inp, const bool log_form)
@@ -110,3 +112,5 @@ qunif(const arma::mat& p, const double a_par, const double b_par, const bool log
 {
     return qunif_int(p,&a_par,&b_par,log_form);
 }
+
+#endif

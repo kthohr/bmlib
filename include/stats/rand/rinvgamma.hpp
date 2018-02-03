@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -26,8 +26,10 @@
 template<typename T>
 T rinvgamma(const T shape_par, const T rate_par);
 
-arma::mat rinvgamma(const int n, const double shape_par, const double rate_par);
-arma::mat rinvgamma(const int n, const int k, const double shape_par, const double rate_par);
+#ifndef STATS_NO_ARMA
+arma::mat rinvgamma(const uint_t n, const double shape_par, const double rate_par);
+arma::mat rinvgamma(const uint_t n, const uint_t k, const double shape_par, const double rate_par);
+#endif
 
 #include "rinvgamma.ipp"
 

@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -32,12 +32,14 @@ statslib_constexpr double dchisq(const double x, const bool log_form);
 statslib_constexpr double dchisq(const double x, const double dof_par);
 
 // matrix/vector input
+#ifndef STATS_NO_ARMA
 arma::mat dchisq_int(const arma::mat& x, const double* dof_par_inp, const bool log_form);
 
 arma::mat dchisq(const arma::mat& x);
 arma::mat dchisq(const arma::mat& x, const bool log_form);
 arma::mat dchisq(const arma::mat& x, const double dof_par);
 arma::mat dchisq(const arma::mat& x, const double dof_par, const bool log_form);
+#endif
 
 #include "dchisq.ipp"
 

@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -32,12 +32,14 @@ statslib_constexpr double pnorm(const double x, const bool log_form);
 statslib_constexpr double pnorm(const double x, const double mu_par, const double sigma_par);
 
 // matrix/vector input
+#ifndef STATS_NO_ARMA
 arma::mat pnorm_int(const arma::mat& x, const double* mu_par_inp, const double* sigma_par_inp, const bool log_form);
 
 arma::mat pnorm(const arma::mat& x);
 arma::mat pnorm(const arma::mat& x, const bool log_form);
 arma::mat pnorm(const arma::mat& x, const double mu_par, const double sigma_par);
 arma::mat pnorm(const arma::mat& x, const double mu_par, const double sigma_par, const bool log_form);
+#endif
 
 #include "pnorm.ipp"
 

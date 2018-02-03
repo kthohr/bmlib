@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -55,6 +55,8 @@ qlnorm(const double p, const double mu_par, const double sigma_par)
 //
 // matrix/vector input
 
+#ifndef STATS_NO_ARMA
+
 inline
 arma::mat
 qlnorm_int(const arma::mat& p, const double* mu_par_inp, const double* sigma_par_inp, const bool log_form)
@@ -97,3 +99,5 @@ qlnorm(const arma::mat& p, const double mu_par, const double sigma_par, const bo
 {
     return qlnorm_int(p,&mu_par,&sigma_par,log_form);
 }
+
+#endif

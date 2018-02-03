@@ -18,7 +18,6 @@ SDIR= .
 BM_DIR= $(SDIR)
 BM_SRC_DIR= $(SDIR)/src
 BM_HEADER_DIR= $(SDIR)/include
-BM_TEST_DIR= $(SDIR)/tests
 
 OPTIM_SRC_DIR= $(BM_SRC_DIR)/optim
 MCMC_SRC_DIR= $(BM_SRC_DIR)/mcmc

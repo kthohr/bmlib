@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -23,6 +23,8 @@
 #ifndef _statslib_dwish_HPP
 #define _statslib_dwish_HPP
 
+#ifndef STATS_NO_ARMA
+
 double dwish_int(const arma::mat& X, const arma::mat* Psi_par_inp, const int* nu_par_inp, const bool log_form);
 
 double dwish(const arma::mat& X);
@@ -31,5 +33,7 @@ double dwish(const arma::mat& X, const arma::mat& Psi_par, const int nu_par);
 double dwish(const arma::mat& X, const arma::mat& Psi_par, const int nu_par, const bool log_form);
 
 #include "dwish.ipp"
+
+#endif
 
 #endif

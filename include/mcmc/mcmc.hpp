@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the MCMC C++ library.
   ##
@@ -29,6 +29,8 @@
 #endif
 
 #include "mcmc_options.hpp"
+#include "stats/dnorm.hpp"
+#include "stats/dmvnorm.hpp"
 
 namespace mcmc
 {
@@ -39,9 +41,15 @@ namespace mcmc
     #include "determine_bounds_type.hpp"
     #include "transform_vals.hpp"
     #include "log_jacobian.hpp"
+    #include "inv_jacobian_adjust.hpp"
 
     // MCMC routines
     #include "rwmh.hpp"
+    #include "mala.hpp"
+    #include "hmc.hpp"
+    #include "rmhmc.hpp"
+
+    #include "aees.hpp"
     #include "de.hpp"
 }
 

@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -25,8 +25,10 @@
 
 double rexp(const double rate_par);
 
-arma::mat rexp(const int n, const double rate_par);
-arma::mat rexp(const int n, const int k, const double rate_par);
+#ifndef STATS_NO_ARMA
+arma::mat rexp(const uint_t n, const double rate_par);
+arma::mat rexp(const uint_t n, const uint_t k, const double rate_par);
+#endif
 
 #include "rexp.ipp"
 

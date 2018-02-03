@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -31,6 +31,7 @@
 #include "dlogis.hpp"
 #include "dmvnorm.hpp"
 #include "dnorm.hpp"
+#include "dt.hpp"
 #include "dunif.hpp"
 #include "dwish.hpp"
 

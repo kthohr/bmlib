@@ -2,10 +2,11 @@
 ## BMLib config script
 
 # inputs
-while getopts b:cm:o:p option; do
+while getopts cdgm:o:p option; do
     case "${option}" in
-        b) BM_BUILD=${OPTARG};;
         c) BM_COVERAGE="y";;
+        d) BM_BUILD="dev";;
+        g) BM_DEBUG="y";;
         m) BM_MATRIX_OPS=${OPTARG};;
         o) BM_OPT=${OPTARG};;
         p) BM_PARALLEL="y";;
@@ -22,55 +23,47 @@ if [ -z ${FC+x} ]; then
     FC=gfortran
 fi
 
-if [[ !(-z ${KEITH_DEV_SETTINGS+x}) ]]; then
-    CC=gcc-mp-7
-    CXX=g++-mp-7
-    FC=gfortran-mp-7
-fi
-
 # compiler checks
 
 IS_DARWIN=$($CXX -dumpmachine 2>&1 | grep -i -c "darwin")
-IS_LINUX=$($CXX -dumpmachine 2>&1 | grep -i -c "linux")
-IS_CYGWIN=$($CXX -dumpmachine 2>&1 | grep -i -c "cygwin")
-
-GCC_COMPILER=$($CXX --version 2>&1 | grep -v -E '(llvm|clang)' | grep -i -c -E '(gcc|g\+\+)')
-CLANG_COMPILER=$($CXX --version 2>&1 | grep -i -c -E '(llvm|clang)')
-
-APPLE_COMPILER=$($CXX --version 2>&1 | grep -i -c -E 'apple llvm')
-MACPORTS_COMPILER=$($CXX --version 2>&1 | grep -i -c "macports")
-
-IS_FAST_OPT=0
-
-# we don't want to limit Apple users who have an OpenMP-enabled compiler
+GCC_COMPILER=$($CXX --version 2>&1 | grep -i -c -E "gcc")
+# APPLE_COMPILER=$($CXX --version 2>&1 | grep -i -c -E 'apple llvm')
 
 # announcements
 
 echo ""
-if [[ "${BM_BUILD}" == "dev" ]]; then
-    echo "BM: dev version"
-fi
 
 if [[ "${BM_COVERAGE}" == "y" ]]; then 
     echo "BM: coverage build"
 fi
+
+if [[ "${BM_BUILD}" == "dev" ]]; then
+    echo "BM: dev version"
+fi
+
+if [[ "${BM_DEBUG}" == "y" ]]; then
+    echo "BM: debug build"
+fi
+
 
 # get working directory
 WDIR=${PWD}
 
 # look for Armadillo
 if [ -z ${ARMA_INCLUDE_PATH+x} ]; then
-    if [ -f ${WDIR}/include/armadillo ]; then 
-        ARMA_INCLUDE_PATH="./include"
-    elif [ -f /usr/include/armadillo ]; then
-        ARMA_INCLUDE_PATH="/usr/include"
-    elif [ -f /usr/local/include/armadillo ]; then
-        ARMA_INCLUDE_PATH="/usr/local/include"
-    elif [ -f /opt/include/armadillo ]; then
-        ARMA_INCLUDE_PATH="/opt/include"
-    elif [ -f /opt/local/include/armadillo ]; then
-        ARMA_INCLUDE_PATH="/opt/local/include"
-    else 
+    
+    declare -a ARMA_DIRS=("${WDIR}/include" "/usr/include" "/usr/local/include" "/opt/include" "/opt/local/include")
+    ARMA_INCLUDE_PATH=
+
+    for i in "${ARMA_DIRS[@]}"; do
+        if [ -f "$i"/armadillo ]; then 
+            ARMA_INCLUDE_PATH="$i"
+            break
+        fi
+    done
+
+    if [[ $ARMA_INCLUDE_PATH == "" ]]; then
+        echo ""
         echo "BM: cannot find armadillo files. Cloning from GitHub"
         echo ""
 
@@ -84,25 +77,19 @@ if [ -z ${ARMA_INCLUDE_PATH+x} ]; then
     fi
 fi
 
-echo "BM: ARMA_INCLUDE_PATH set to ${ARMA_INCLUDE_PATH}"
+echo "BM: ARMA_INCLUDE_PATH set to: ${ARMA_INCLUDE_PATH}"
 
-# set build and optimization flags
+# set build and BMization flags
+
 if [[ "${BM_COVERAGE}" == "y" ]]; then 
     BM_OPT_FLAGS="-g -O0 --coverage -fno-inline -fno-inline-small-functions -fno-default-inline"
-    BM_LTO_FLAGS=""
 else
-    if [[ "${BM_OPT}" == "fast" ]]; then
-        echo "BM: experimental optimization"
-
-        IS_FAST_OPT=1
-
-        # BM_OPT_FLAGS="-Ofast -march=native -flto -DARMA_NO_DEBUG"
-        # BM_LTO_FLAGS="-flto -Ofast -march=native"
-        BM_OPT_FLAGS="-Ofast -march=native -DARMA_NO_DEBUG"
-        BM_LTO_FLAGS="-Ofast -march=native"
+    if [[ "${BM_OPT}" == "" ]]; then
+        # BM_OPT_FLAGS="-Ofast -march=native -DARMA_NO_DEBUG"
+        # echo "BM: experimental BMization; use of NaN or +/-Inf not recognized"
+        BM_OPT_FLAGS="-O3 -march=native -ffp-contract=fast -flto -DARMA_NO_DEBUG"
     else
-        BM_OPT_FLAGS="-O2"
-        BM_LTO_FLAGS=$BM_OPT_FLAGS
+        BM_OPT_FLAGS="${BM_OPT}"
     fi
 
     if [[ "${BM_PARALLEL}" == "y" ]]; then
@@ -113,7 +100,8 @@ fi
 
 BM_WARN_FLAGS="-Wall"
 
-# shared library names
+# shared library name and install path
+
 BM_SHLIB_NAME="libbm.so"
 
 if [[ !("${BM_BUILD}" == "dev") ]]; then
@@ -121,10 +109,8 @@ if [[ !("${BM_BUILD}" == "dev") ]]; then
         BM_INSTALL_PATH="/usr/local"
     fi
     echo ""
-    echo "BM: install path set to ${BM_INSTALL_PATH}"
+    echo "BM: install path set to: ${BM_INSTALL_PATH}"
 fi
-
-# System specific build options
 
 if [[ $OSTYPE == darwin* ]] ; then
     if [[ "${BM_BUILD}" == "dev" ]]; then
@@ -145,11 +131,8 @@ elif [[ $OSTYPE == *linux* ]] ; then
 
     BM_BLAS_LAPACK="-lblas -llapack"
 else
-    BM_SHLIB_FLAGS="-shared"
     BM_BLAS_LAPACK="-lblas -llapack"
 fi
-
-# final settings
 
 if [[ !(-z ${BM_MATRIX_OPS+x}) ]]; then
     BM_BLAS_LAPACK="${BM_MATRIX_OPS}"
@@ -157,27 +140,29 @@ if [[ !(-z ${BM_MATRIX_OPS+x}) ]]; then
     echo "BM: BLAS and Lapack libraries set to ${BM_BLAS_LAPACK}"
 fi
 
-if [[ "${BM_PARALLEL}" == "y" ]]; then 
-    BM_LTO_FLAGS+=" -fopenmp"
+if [ "$IS_DARWIN" -eq "1" ] && [ "$GCC_COMPILER" -eq "1" ]; then
+    echo ""
+    echo "BM: To enable AVX features, your compiler will use the Apple LLVM assembler"
+    BM_OPT_FLAGS="-Wa,-q ${BM_OPT_FLAGS}"
+fi
+
+# final BMization checks
+
+if [[ "${BM_DEBUG}" == "y" ]]; then
+    BM_OPT_FLAGS="-O0 -g"
 fi
 
 if [[ "${BM_COVERAGE}" == "y" ]]; then 
     BM_SHLIB_FLAGS="--coverage ${BM_SHLIB_FLAGS}"
 else
-    BM_SHLIB_FLAGS="${BM_LTO_FLAGS} ${BM_SHLIB_FLAGS}"
+    BM_SHLIB_FLAGS="${BM_OPT_FLAGS} ${BM_SHLIB_FLAGS}"
 fi
 
-if [ "$IS_FAST_OPT" -eq "1" ] && [ "$IS_DARWIN" -eq "1" ] && [ "$MACPORTS_COMPILER" -eq "1" ] && [ "$CLANG_COMPILER" -eq "0" ]; then
-    echo ""
-    echo "BM: To use AVX features, we will use the Apple LLVM assembler"
-    BM_OPT_FLAGS="-Wa,-q ${BM_OPT_FLAGS}"
-    # BM_SHLIB_FLAGS="-Wa,-q ${BM_SHLIB_FLAGS}"
-fi
+echo "BM: BMization flags set to: ${BM_OPT_FLAGS}"
 
-BM_OPT_FLAGS+=" -DSTATSLIB_GO_INLINE"
+# end
 
 echo ""
-# create Makefile
 
 sed -e "s|@CC@|${CC}|" \
     -e "s|@CXX@|${CXX}|" \

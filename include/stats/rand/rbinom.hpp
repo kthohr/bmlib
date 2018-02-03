@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -26,8 +26,10 @@
 template<typename T>
 int rbinom(const int n_trials_par, const T prob_par);
 
-arma::mat rbinom(const int n, const int n_trials_par, const double prob_par);
-arma::mat rbinom(const int n, const int k, const int n_trials_par, const double prob_par);
+#ifndef STATS_NO_ARMA
+arma::mat rbinom(const uint_t n, const int n_trials_par, const double prob_par);
+arma::mat rbinom(const uint_t n, const uint_t k, const int n_trials_par, const double prob_par);
+#endif
 
 #include "rbinom.ipp"
 

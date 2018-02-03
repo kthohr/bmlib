@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -23,8 +23,12 @@
 #ifndef _statslib_rmultinom_HPP
 #define _statslib_rmultinom_HPP
 
+#ifndef STATS_NO_ARMA
+
 arma::colvec rmultinom(const arma::vec& prob);
 
 #include "rmultinom.ipp"
+
+#endif
 
 #endif

@@ -1,6 +1,6 @@
 /*################################################################################
   ##
-  ##   Copyright (C) 2011-2017 Keith O'Hara
+  ##   Copyright (C) 2011-2018 Keith O'Hara
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
@@ -63,6 +63,8 @@ dinvgamma(const double x, const double shape_par, const double rate_par)
 //
 // matrix/vector input
 
+#ifndef STATS_NO_ARMA
+
 inline
 arma::mat
 dinvgamma_int(const arma::mat& x, const double* shape_par_inp, const double* rate_par_inp, const bool log_form)
@@ -112,3 +114,5 @@ dinvgamma(const arma::mat& x, const double shape_par, const double rate_par, con
 {
     return dinvgamma_int(x,&shape_par,&rate_par,log_form);
 }
+
+#endif
