@@ -91,7 +91,7 @@ int main()
 
     //
 
-    mcmc::mcmc_settings m_settings;
+    mcmc::algo_settings m_settings;
 
     m_settings.de_initial_lb = dsgevar_obj.dsge_obj.lower_bounds;
     m_settings.de_initial_ub = dsgevar_obj.dsge_obj.upper_bounds;
