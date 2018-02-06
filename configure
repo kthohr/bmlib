@@ -87,14 +87,14 @@ else
     if [[ "${BM_OPT}" == "" ]]; then
         # BM_OPT_FLAGS="-Ofast -march=native -DARMA_NO_DEBUG"
         # echo "BM: experimental BMization; use of NaN or +/-Inf not recognized"
-        BM_OPT_FLAGS="-O3 -march=native -ffp-contract=fast -flto -DARMA_NO_DEBUG"
+        BM_OPT_FLAGS="-O3 -march=native -ffp-contract=fast -flto -DARMA_NO_DEBUG -DARMA_USE_CXX11"
     else
         BM_OPT_FLAGS="${BM_OPT}"
     fi
 
     if [[ "${BM_PARALLEL}" == "y" ]]; then
         echo "BM: using OpenMP"
-        BM_OPT_FLAGS="${BM_OPT_FLAGS} -fopenmp -DBM_USE_OMP -DOPTIM_USE_OMP -DMCMC_USE_OMP -DARMA_USE_OPENMP -DARMA_USE_CXX11"
+        BM_OPT_FLAGS="${BM_OPT_FLAGS} -fopenmp -DBM_USE_OMP -DOPTIM_USE_OMP -DMCMC_USE_OMP -DARMA_USE_OPENMP"
     fi
 fi
 
@@ -158,7 +158,7 @@ else
     BM_SHLIB_FLAGS="${BM_OPT_FLAGS} ${BM_SHLIB_FLAGS}"
 fi
 
-echo "BM: BMization flags set to: ${BM_OPT_FLAGS}"
+echo "BM: optimization flags set to: ${BM_OPT_FLAGS}"
 
 # end
 

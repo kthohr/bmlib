@@ -36,12 +36,12 @@ LIBS= @BM_BLAS_LAPACK@
 SOURCES_MCMC= $(MCMC_SRC_DIR)/de.cpp
 OBJECTS_MCMC= $(SOURCES_MCMC:.cpp=.o)
 
-#SOURCES_OPTIM= $(OPTIM_SRC_DIR)/line_search/more_thuente.cpp $(OPTIM_SRC_DIR)/unconstrained/bfgs.cpp $(OPTIM_SRC_DIR)/unconstrained/cg.cpp $(OPTIM_SRC_DIR)/unconstrained/de.cpp $(OPTIM_SRC_DIR)/unconstrained/de_prmm.cpp $(OPTIM_SRC_DIR)/unconstrained/nm.cpp $(OPTIM_SRC_DIR)/unconstrained/pso.cpp $(OPTIM_SRC_DIR)/unconstrained/pso_dv.cpp
 SOURCES_OPTIM= $(OPTIM_SRC_DIR)/unconstrained/de.cpp
 OBJECTS_OPTIM= $(SOURCES_OPTIM:.cpp=.o)
 
 # core BM files
-SOURCES_BM_VAR= $(BM_SRC_DIR)/var/bvarm.cpp $(BM_SRC_DIR)/var/bvars.cpp $(BM_SRC_DIR)/var/bvarw.cpp $(BM_SRC_DIR)/var/bvartvp.cpp $(BM_SRC_DIR)/var/cvar.cpp
+SOURCES_BM_VAR= $(BM_SRC_DIR)/var/bvarm.cpp $(BM_SRC_DIR)/var/bvars.cpp $(BM_SRC_DIR)/var/bvarw.cpp \
+                $(BM_SRC_DIR)/var/bvartvp.cpp $(BM_SRC_DIR)/var/cvar.cpp
 OBJECTS_BM_VAR= $(SOURCES_BM_VAR:.cpp=.o)
 
 SOURCES_BM_FILT= $(BM_SRC_DIR)/filter/kalman.cpp $(BM_SRC_DIR)/filter/chandrasekhar.cpp
