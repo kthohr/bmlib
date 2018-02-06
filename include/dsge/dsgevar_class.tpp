@@ -269,7 +269,7 @@ dsgevar<T>::estim_mode(const arma::vec& initial_vals, arma::mat& vcov_mat)
 
 template<typename T>
 arma::vec
-dsgevar<T>::estim_mode(const arma::vec& initial_vals, arma::mat* vcov_mat, optim::opt_settings* settings_inp)
+dsgevar<T>::estim_mode(const arma::vec& initial_vals, arma::mat* vcov_mat, optim::algo_settings* settings_inp)
 {
     dsgevar_estim_data<T> mode_data;
     mode_data.dsgevar_obj = *this;
@@ -277,7 +277,7 @@ dsgevar<T>::estim_mode(const arma::vec& initial_vals, arma::mat* vcov_mat, optim
     //
     // optimization settings
 
-    optim::opt_settings settings;
+    optim::algo_settings settings;
 
     if (settings_inp) {
         settings = *settings_inp;

@@ -73,7 +73,7 @@ int main()
     //
     // mode estim and mcmc
 
-    optim::opt_settings o_settings;
+    optim::algo_settings o_settings;
 
     o_settings.de_initial_lb = dsgevar_obj.dsge_obj.lower_bounds;
     o_settings.de_initial_ub = dsgevar_obj.dsge_obj.upper_bounds;
