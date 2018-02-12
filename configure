@@ -45,7 +45,6 @@ if [[ "${BM_DEBUG}" == "y" ]]; then
     echo "BM: debug build"
 fi
 
-
 # get working directory
 WDIR=${PWD}
 
@@ -146,7 +145,7 @@ if [ "$IS_DARWIN" -eq "1" ] && [ "$GCC_COMPILER" -eq "1" ]; then
     BM_OPT_FLAGS="-Wa,-q ${BM_OPT_FLAGS}"
 fi
 
-# final BMization checks
+# final optimization checks
 
 if [[ "${BM_DEBUG}" == "y" ]]; then
     BM_OPT_FLAGS="-O0 -g"

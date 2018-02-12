@@ -8,17 +8,17 @@ export LD_LIBRARY_PATH="$PWD":$LD_LIBRARY_PATH
 cd tests
 
 cd dsge/gensys
-./configure -b dev -c
+./configure -c -d
 make
 ./cov_check
 
 cd ../uhlig
-./configure -b dev -c
+./configure -c -d
 make
 ./cov_check
 
 cd ../../var
-./configure -b dev -c
+./configure -c -d
 make
 ./cov_check
 
