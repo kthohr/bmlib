@@ -66,7 +66,7 @@ int main()
     double Xi_psi = 1.0;
     int gamma = M+1;
 
-    bvar_model.prior(coef_prior,HP_1,HP_4,psi_prior,Xi_psi,gamma);
+    bvar_model.prior(coef_prior,HP_1,HP_4,psi_prior,Xi_psi,gamma,false);
 
     //
 
