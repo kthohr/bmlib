@@ -20,7 +20,7 @@
   ################################################################################*/
 
 /*
- * BVARW example
+ * BVAR-INW example
  */
 
 #include "bmlib.hpp"
@@ -49,7 +49,7 @@ int main()
 
     //
     
-    bm::bvarw bvar_model;
+    bm::bvarinw bvar_model;
 
     bvar_model.build(Y,cons_term,p);
 

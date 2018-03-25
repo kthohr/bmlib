@@ -23,11 +23,10 @@ CXXFLAGS = $(CXX_STD) $(OPT_FLAGS) -I$(ARMA_INCLUDE_PATH) -I$(BM_HEADER_DIR)
 LIBS= @BM_BLAS_LAPACK@ -L@BM_INSTALL_PATH@ -l@BM_SHLIB_NAME@
 
 # BM Test Files
-SOURCES_BM_ARUMS= $(BM_TEST_DIR)/bvarm.cpp $(BM_TEST_DIR)/bvars.cpp $(BM_TEST_DIR)/bvarw.cpp \
-                  $(BM_TEST_DIR)/cvar.cpp $(BM_TEST_DIR)/bvartvp.cpp
-OBJECTS_BM_ARUMS= $(SOURCES_BM_ARUMS:.cpp=.test)
+SOURCES_BM := $(shell find $(BM_TEST_DIR) -name '*.cpp')
+OBJECTS_BM := $(addprefix $(BM_TEST_DIR)/,$(SOURCES_BM:%.cpp=%.test))
 
-all: $(OBJECTS_BM_ARUMS)
+all: $(OBJECTS_BM)
 
 $(BM_TEST_DIR)/%.test: $(BM_TEST_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LIBS)

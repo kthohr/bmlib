@@ -40,7 +40,8 @@ SOURCES_OPTIM= $(OPTIM_SRC_DIR)/unconstrained/de.cpp
 OBJECTS_OPTIM= $(SOURCES_OPTIM:.cpp=.o)
 
 # core BM files
-SOURCES_BM_VAR= $(BM_SRC_DIR)/var/bvarm.cpp $(BM_SRC_DIR)/var/bvars.cpp $(BM_SRC_DIR)/var/bvarw.cpp \
+SOURCES_BM_VAR= $(BM_SRC_DIR)/var/bvarm.cpp $(BM_SRC_DIR)/var/bvars.cpp \
+                $(BM_SRC_DIR)/var/bvarcnw.cpp $(BM_SRC_DIR)/var/bvarinw.cpp \
                 $(BM_SRC_DIR)/var/bvartvp.cpp $(BM_SRC_DIR)/var/cvar.cpp
 OBJECTS_BM_VAR= $(SOURCES_BM_VAR:.cpp=.o)
 
