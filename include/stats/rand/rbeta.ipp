@@ -4,64 +4,85 @@
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
-  ##   StatsLib is free software: you can redistribute it and/or modify
-  ##   it under the terms of the GNU General Public License as published by
-  ##   the Free Software Foundation, either version 2 of the License, or
-  ##   (at your option) any later version.
+  ##   Licensed under the Apache License, Version 2.0 (the "License");
+  ##   you may not use this file except in compliance with the License.
+  ##   You may obtain a copy of the License at
   ##
-  ##   StatsLib is distributed in the hope that it will be useful,
-  ##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ##   GNU General Public License for more details.
+  ##       http://www.apache.org/licenses/LICENSE-2.0
+  ##
+  ##   Unless required by applicable law or agreed to in writing, software
+  ##   distributed under the License is distributed on an "AS IS" BASIS,
+  ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ##   See the License for the specific language governing permissions and
+  ##   limitations under the License.
   ##
   ################################################################################*/
 
 /* 
- * Sample from a beta distribution with parameters (alpha, beta)
+ * Sample from a Beta distribution
  */
 
 template<typename T>
+statslib_inline
 T
-rbeta(const T a_par, const T b_par)
+rbeta(const T a_par, const T b_par, rand_engine_t& engine)
 {
-    const T X = rgamma(a_par,1.0);
-    const T Y = rgamma(b_par,1.0);
-
-    //
+    const T X = rgamma(a_par,T(1.0),engine);
+    const T Y = rgamma(b_par,T(1.0),engine);
     
     return X / (X + Y);
 }
 
-#ifndef STATS_NO_ARMA
-
-inline
-arma::mat
-rbeta(const uint_t n, const double a_par, const double b_par)
+template<typename T>
+statslib_inline
+T
+rbeta(const T a_par, const T b_par, uint_t seed_val)
 {
-    return rbeta(n,1,a_par,b_par);
+    rand_engine_t engine(seed_val);
+    return rbeta(a_par,b_par,engine);
 }
 
-inline
-arma::mat
-rbeta(const uint_t n, const uint_t k, const double a_par, const double b_par)
+template<typename T>
+statslib_inline
+void
+rbeta_int(const T a_par, const T b_par, T* vals_out, const uint_t num_elem)
 {
-    arma::mat ret(n,k);
-    
-    //
+#ifdef STATS_USE_OPENMP
+    uint_t n_threads = omp_get_max_threads();
 
-    double* ret_mem = ret.memptr();
+    std::vector<rand_engine_t> engines;
 
-#ifndef STATS_NO_OMP
-    #pragma omp parallel for
-#endif
-    for (uint_t j=0; j < n*k; j++)
+    for (uint_t k=0; k < n_threads; k++)
     {
-        ret_mem[j] = rbeta(a_par,b_par);
+        engines.push_back(rand_engine_t(std::random_device{}()));
     }
 
-    //
+    #pragma omp parallel for
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        uint_t thread_id = omp_get_thread_num();
+        vals_out[j] = rbeta(a_par,b_par,engines[thread_id]);
+    }
+#else
+    rand_engine_t engine(std::random_device{}());
 
-    return ret;
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        vals_out[j] = rbeta(a_par,b_par,engine);
+    }
+#endif
 }
 
+#ifdef STATS_WITH_MATRIX_LIB
+template<typename mT, typename eT>
+statslib_inline
+mT
+rbeta(const uint_t n, const uint_t k, const eT a_par, const eT b_par)
+{
+    mT mat_out(n,k);
+
+    rbeta_int(a_par,b_par,mat_ops::get_mem_ptr(mat_out),n*k);
+
+    return mat_out;
+}
 #endif

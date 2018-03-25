@@ -4,15 +4,17 @@
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
-  ##   StatsLib is free software: you can redistribute it and/or modify
-  ##   it under the terms of the GNU General Public License as published by
-  ##   the Free Software Foundation, either version 2 of the License, or
-  ##   (at your option) any later version.
+  ##   Licensed under the Apache License, Version 2.0 (the "License");
+  ##   you may not use this file except in compliance with the License.
+  ##   You may obtain a copy of the License at
   ##
-  ##   StatsLib is distributed in the hope that it will be useful,
-  ##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ##   GNU General Public License for more details.
+  ##       http://www.apache.org/licenses/LICENSE-2.0
+  ##
+  ##   Unless required by applicable law or agreed to in writing, software
+  ##   distributed under the License is distributed on an "AS IS" BASIS,
+  ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ##   See the License for the specific language governing permissions and
+  ##   limitations under the License.
   ##
   ################################################################################*/
 
@@ -21,47 +23,74 @@
  */
 
 template<typename T>
+statslib_inline
 T
-rf(const T df1_par, const T df2_par)
+rf_int(const T df1_par, const T df2_par, rand_engine_t& engine)
 {
-    const T X = rchisq(df1_par);
-    const T Y = rchisq(df2_par);
-
-    //
+    const T X = rchisq(df1_par,engine);
+    const T Y = rchisq(df2_par,engine);
     
     return (df2_par / df1_par) * X / Y;
 }
 
-#ifndef STATS_NO_ARMA
-
-inline
-arma::mat
-rf(const uint_t n, const double df1_par, const double df2_par)
+template<typename T>
+statslib_inline
+return_t<T>
+rf(const T df1_par, const T df2_par, rand_engine_t& engine)
 {
-    return rf(n,1,df1_par,df2_par);
+    return rf_int(return_t<T>(df1_par),return_t<T>(df2_par),engine);
 }
 
-inline
-arma::mat
-rf(const uint_t n, const uint_t k, const double df1_par, const double df2_par)
+template<typename T>
+statslib_inline
+return_t<T>
+rf(const T df1_par, const T df2_par, uint_t seed_val)
 {
-    arma::mat ret(n,k);
-    
-    //
+    rand_engine_t engine(seed_val);
+    return rf_int(return_t<T>(df1_par),return_t<T>(df2_par),engine);
+}
 
-    double* ret_mem = ret.memptr();
+template<typename T>
+statslib_inline
+void
+rf_int(const T df1_par, const T df2_par, T* vals_out, const uint_t num_elem)
+{
+#ifdef STATS_USE_OPENMP
+    uint_t n_threads = omp_get_max_threads();
 
-#ifndef STATS_NO_OMP
-    #pragma omp parallel for
-#endif
-    for (uint_t j=0; j < n*k; j++)
+    std::vector<rand_engine_t> engines;
+
+    for (uint_t k=0; k < n_threads; k++)
     {
-        ret_mem[j] = rf(df1_par,df2_par);
+        engines.push_back(rand_engine_t(std::random_device{}()));
     }
 
-    //
+    #pragma omp parallel for
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        uint_t thread_id = omp_get_thread_num();
+        vals_out[j] = rf(df1_par,df2_par,engines[thread_id]);
+    }
+#else
+    rand_engine_t engine(std::random_device{}());
 
-    return ret;
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        vals_out[j] = rf(df1_par,df2_par,engine);
+    }
+#endif
 }
 
+#ifdef STATS_WITH_MATRIX_LIB
+template<typename mT, typename eT>
+statslib_inline
+mT
+rf(const uint_t n, const uint_t k, const eT df1_par, const eT df2_par)
+{
+    mT mat_out(n,k);
+
+    rf_int(df1_par,df2_par,mat_ops::get_mem_ptr(mat_out),n*k);
+
+    return mat_out;
+}
 #endif

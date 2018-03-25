@@ -4,15 +4,17 @@
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
-  ##   StatsLib is free software: you can redistribute it and/or modify
-  ##   it under the terms of the GNU General Public License as published by
-  ##   the Free Software Foundation, either version 2 of the License, or
-  ##   (at your option) any later version.
+  ##   Licensed under the Apache License, Version 2.0 (the "License");
+  ##   you may not use this file except in compliance with the License.
+  ##   You may obtain a copy of the License at
   ##
-  ##   StatsLib is distributed in the hope that it will be useful,
-  ##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ##   GNU General Public License for more details.
+  ##       http://www.apache.org/licenses/LICENSE-2.0
+  ##
+  ##   Unless required by applicable law or agreed to in writing, software
+  ##   distributed under the License is distributed on an "AS IS" BASIS,
+  ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ##   See the License for the specific language governing permissions and
+  ##   limitations under the License.
   ##
   ################################################################################*/
 
@@ -20,62 +22,70 @@
  * Sample from a Chi-Squared distribution
  */
 
-inline
-double
-rchisq(const int dof_par)
+template<typename T>
+statslib_inline
+T
+rchisq_int(const T dof_par, rand_engine_t& engine)
 {
-    double ret = 0;
-    
-    //
-    
-    if (dof_par < 50) { // sum of squared (standard) normals
-        // arma::mat X = rnorm(dof_par,1,0.0,1.0);
-        // ret = arma::as_scalar(X.t() * X);
-
-        for (int i=0; i < dof_par; i++) {
-            double norm_val = rnorm();
-            ret += norm_val*norm_val;
-        }
-
-    } else { // Fisher's asymptotic approximation
-        ret = 0.5 * std::pow(rnorm() + std::sqrt(static_cast<double>(2*dof_par - 1)), 2);
-    }
-    
-    //
-
-    return ret;
+    return rgamma<T>(dof_par/T(2.0),T(2.0),engine);
 }
 
-#ifndef STATS_NO_ARMA
-
-inline
-arma::mat
-rchisq(const uint_t n, const int dof_par)
+template<typename T>
+statslib_inline
+return_t<T>
+rchisq(const T dof_par, rand_engine_t& engine)
 {
-    return rchisq(n,1,dof_par);
+    return rchisq_int(return_t<T>(dof_par),engine);
 }
 
-inline
-arma::mat
-rchisq(const uint_t n, const uint_t k, const int dof_par)
+template<typename T>
+statslib_inline
+return_t<T>
+rchisq(const T dof_par, uint_t seed_val)
 {
-    arma::mat ret(n,k);
-    
-    //
+    rand_engine_t engine(seed_val);
+    return rchisq_int(return_t<T>(dof_par),engine);
+}
 
-    double* ret_mem = ret.memptr();
+template<typename T>
+void
+rchisq_int(const T dof_par, T* vals_out, const uint_t num_elem)
+{
+#ifdef STATS_USE_OPENMP
+    uint_t n_threads = omp_get_max_threads();
 
-#ifndef STATS_NO_OMP
-    #pragma omp parallel for
-#endif
-    for (uint_t j=0; j < n*k; j++)
+    std::vector<rand_engine_t> engines;
+
+    for (uint_t k=0; k < n_threads; k++)
     {
-        ret_mem[j] = rchisq(dof_par);
+        engines.push_back(rand_engine_t(std::random_device{}()));
     }
-    
-    //
 
-    return ret;
+    #pragma omp parallel for
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        uint_t thread_id = omp_get_thread_num();
+        vals_out[j] = rchisq(dof_par,engines[thread_id]);
+    }
+#else
+    rand_engine_t engine(std::random_device{}());
+
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        vals_out[j] = rchisq(dof_par,engine);
+    }
+#endif
 }
 
+#ifdef STATS_WITH_MATRIX_LIB
+template<typename mT, typename eT>
+mT
+rchisq(const uint_t n, const uint_t k, const eT dof_par)
+{
+    mT mat_out(n,k);
+
+    rchisq_int(dof_par,mat_ops::get_mem_ptr(mat_out),n*k);
+
+    return mat_out;
+}
 #endif

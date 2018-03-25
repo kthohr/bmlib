@@ -4,15 +4,17 @@
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
-  ##   StatsLib is free software: you can redistribute it and/or modify
-  ##   it under the terms of the GNU General Public License as published by
-  ##   the Free Software Foundation, either version 2 of the License, or
-  ##   (at your option) any later version.
+  ##   Licensed under the Apache License, Version 2.0 (the "License");
+  ##   you may not use this file except in compliance with the License.
+  ##   You may obtain a copy of the License at
   ##
-  ##   StatsLib is distributed in the hope that it will be useful,
-  ##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ##   GNU General Public License for more details.
+  ##       http://www.apache.org/licenses/LICENSE-2.0
+  ##
+  ##   Unless required by applicable law or agreed to in writing, software
+  ##   distributed under the License is distributed on an "AS IS" BASIS,
+  ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ##   See the License for the specific language governing permissions and
+  ##   limitations under the License.
   ##
   ################################################################################*/
 
@@ -21,44 +23,62 @@
  */
 
 template<typename T>
+statslib_inline
 int
-rbern(const T prob_par)
+rbern(const T prob_par, rand_engine_t& engine)
 {    
-    return (runif<T>(T(0.0),T(1.0)) <= prob_par);
+    return (runif<T>(T(0.0),T(1.0),engine) <= prob_par);
 }
 
-#ifndef STATS_NO_ARMA
-
-inline
-arma::mat
-rbern(const uint_t n, const double prob_par)
-{
-    return rbern(n,1,prob_par);
+template<typename T>
+statslib_inline
+int
+rbern(const T prob_par, uint_t seed_val)
+{    
+    return (runif<T>(T(0.0),T(1.0),seed_val) <= prob_par);
 }
 
-inline
-arma::mat
-rbern(const uint_t n, const uint_t k, const double prob_par)
+template<typename T>
+statslib_inline
+void
+rbern_int(const T prob_par, T* vals_out, const uint_t num_elem)
 {
-    const arma::mat u = runif(n,k,0.0,1.0);
-    arma::mat ret(n,k);
+#ifdef STATS_USE_OPENMP
+    uint_t n_threads = omp_get_max_threads();
 
-    //
+    std::vector<rand_engine_t> engines;
 
-    const double* inp_mem = u.memptr();
-    double* ret_mem = ret.memptr();
-
-#ifndef STATS_NO_OMP
-    #pragma omp parallel for
-#endif
-    for (uint_t j=0; j < n*k; j++)
+    for (uint_t k=0; k < n_threads; k++)
     {
-        ret_mem[j] = (inp_mem[j] <= prob_par) ? 1 : 0;
+        engines.push_back(rand_engine_t(std::random_device{}()));
     }
 
-    //
-    
-    return ret;
+    #pragma omp parallel for
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        uint_t thread_id = omp_get_thread_num();
+        vals_out[j] = rbern(prob_par,engines[thread_id]);
+    }
+#else
+    rand_engine_t engine(std::random_device{}());
+
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        vals_out[j] = rbern(prob_par,engine);
+    }
+#endif
 }
 
+#ifdef STATS_WITH_MATRIX_LIB
+template<typename mT, typename eT>
+statslib_inline
+mT
+rbern(const uint_t n, const uint_t k, const eT prob_par)
+{
+    mT mat_out(n,k);
+
+    rbern_int(prob_par,mat_ops::get_mem_ptr(mat_out),n*k);
+
+    return mat_out;
+}
 #endif

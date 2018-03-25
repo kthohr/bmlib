@@ -20,13 +20,13 @@
   ################################################################################*/
 
 /*
- * bvarw class
+ * bvarinw class
  */
 
-#ifndef _bmlib_bvarw_HPP
-#define _bmlib_bvarw_HPP
+#ifndef _bmlib_bvarinw_HPP
+#define _bmlib_bvarinw_HPP
 
-class bvarw
+class bvarinw
 {
     public:
         bool cons_term; // if there is a constant (intercept) in the model
@@ -74,14 +74,14 @@ class bvarw
         //
         // member functions
 
-        ~bvarw() = default;
-         bvarw() = default;
+        ~bvarinw() = default;
+         bvarinw() = default;
 
-        bvarw(const bvarw&) = default;
-        bvarw& operator=(const bvarw&) = default;
+        bvarinw(const bvarinw&) = default;
+        bvarinw& operator=(const bvarinw&) = default;
 
-        bvarw(bvarw&&) = default;
-        bvarw& operator=(bvarw&&) = default;
+        bvarinw(bvarinw&&) = default;
+        bvarinw& operator=(bvarinw&&) = default;
 
         void build(const arma::mat& data_raw, const bool cons_term_inp, const int p_inp);
         void build(const arma::mat& data_raw, const arma::mat& data_ext, const bool cons_term_inp, const int p_inp);
@@ -91,16 +91,17 @@ class bvarw
         void prior(const arma::vec& coef_prior, const double Xi_beta, const double Xi_Sigma, const int gamma);
         void prior(const arma::vec& coef_prior, const arma::mat& Xi_beta, const arma::mat& Xi_Sigma, const int gamma);
 
-        void gibbs(const int n_draws, const int n_burnin);
+        void gibbs(const uint_t n_draws, const uint_t n_burnin);
 
-        arma::cube IRF(const int n_irf_periods);
+        arma::cube IRF(const uint_t n_irf_periods);
+        arma::cube FEVD(const uint_t n_periods);
 
-        arma::cube forecast(const int horizon, const bool incl_shocks);
-        arma::cube forecast(const arma::mat& Y_T, const int horizon, const bool incl_shocks);
+        arma::cube forecast(const uint_t horizon, const bool incl_shocks);
+        arma::cube forecast(const arma::mat& Y_T, const uint_t horizon, const bool incl_shocks);
 
     protected:
         void build_int(const arma::mat& data_raw, const arma::mat* data_ext, const bool cons_term_inp, const int p_inp);
-        arma::cube forecast_int(const arma::mat* Y_T_inp, const int horizon, const bool incl_shocks);
+        arma::cube forecast_int(const arma::mat* Y_T_inp, const uint_t horizon, const bool incl_shocks);
 };
 
 #endif

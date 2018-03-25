@@ -4,49 +4,57 @@
   ##
   ##   This file is part of the StatsLib C++ library.
   ##
-  ##   StatsLib is free software: you can redistribute it and/or modify
-  ##   it under the terms of the GNU General Public License as published by
-  ##   the Free Software Foundation, either version 2 of the License, or
-  ##   (at your option) any later version.
+  ##   Licensed under the Apache License, Version 2.0 (the "License");
+  ##   you may not use this file except in compliance with the License.
+  ##   You may obtain a copy of the License at
   ##
-  ##   StatsLib is distributed in the hope that it will be useful,
-  ##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ##   GNU General Public License for more details.
+  ##       http://www.apache.org/licenses/LICENSE-2.0
+  ##
+  ##   Unless required by applicable law or agreed to in writing, software
+  ##   distributed under the License is distributed on an "AS IS" BASIS,
+  ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ##   See the License for the specific language governing permissions and
+  ##   limitations under the License.
   ##
   ################################################################################*/
 
-/* 
+/*
  * Sample from a gamma distribution
  * using the Marsaglia and Tsang method
  */
 
 template<typename T>
+statslib_inline
 T
-rgamma(const T shape_par, const T scale_par)
+rgamma(const T shape_par, const T scale_par, rand_engine_t& engine)
 {
-    double ret = 0;
-    
+    T ret = 0;
+
     //
 
-    if (shape_par < 1.0) {
-        const T U = runif();
-        ret = rgamma(1.0 + shape_par, scale_par) * std::pow(U,1/shape_par);
-    } else {
-        const T d = shape_par - 1.0/3.0;
-        const T c = 1.0 / 3.0 / std::sqrt(d);
+    if (shape_par < T(1.0))
+    {
+        const T U = runif<T>(T(0.0),T(1.0),engine);
+        ret = rgamma(T(1.0) + shape_par, scale_par,engine) * std::pow(U,T(1.0)/shape_par);
+    }
+    else
+    {
+        const T d = shape_par - T(1.0)/T(3.0);
+        const T c = T(1.0) / T(3.0) / std::sqrt(d);
         T V = 1.0;
 
         bool keep_running = true;
 
-        while (keep_running) {
-            T Z = rnorm();
-            V = std::pow(1.0 + c*Z,3);
+        while (keep_running)
+        {
+            T Z = rnorm<T>(T(0.0),T(1.0),engine);
+            V = std::pow(T(1.0) + c*Z,3);
 
-            if (V > 0) {
-                T U = runif();
+            if (V > 0)
+            {
+                T U = runif<T>(T(0.0),T(1.0),engine);
 
-                T check_2 = 0.5*Z*Z + d*(1 - V + std::log(V));
+                T check_2 = T(0.5)*Z*Z + d*(T(1.0) - V + std::log(V));
 
                 if (std::log(U) < check_2) {
                     keep_running = false;
@@ -62,36 +70,58 @@ rgamma(const T shape_par, const T scale_par)
     return ret;
 }
 
-#ifndef STATS_NO_ARMA
-
-inline
-arma::mat
-rgamma(const uint_t n, const double shape_par, const double scale_par)
+template<typename T>
+statslib_inline
+T
+rgamma(const T shape_par, const T scale_par, uint_t seed_val)
 {
-    return rgamma(n,1,shape_par,scale_par);
+    rand_engine_t engine(seed_val);
+    return rgamma(shape_par,scale_par,engine);
 }
 
-inline
-arma::mat
-rgamma(const uint_t n, const uint_t k, const double shape_par, const double scale_par)
+//
+
+template<typename T>
+statslib_inline
+void
+rgamma_int(const T shape_par, const T scale_par, T* vals_out, const uint_t num_elem)
 {
-    arma::mat ret(n,k);
-    
-    //
+#ifdef STATS_USE_OPENMP
+    uint_t n_threads = omp_get_max_threads();
 
-    double* ret_mem = ret.memptr();
+    std::vector<rand_engine_t> engines;
 
-#ifndef STATS_NO_OMP
-    #pragma omp parallel for
-#endif
-    for (uint_t j=0; j < n*k; j++)
+    for (uint_t k=0; k < n_threads; k++)
     {
-        ret_mem[j] = rgamma(shape_par,scale_par);
+        engines.push_back(rand_engine_t(std::random_device{}()));
     }
 
-    //
-    
-    return ret;
+    #pragma omp parallel for
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        uint_t thread_id = omp_get_thread_num();
+        vals_out[j] = rgamma(shape_par,scale_par,engines[thread_id]);
+    }
+#else
+    rand_engine_t engine(std::random_device{}());
+
+    for (uint_t j=0U; j < num_elem; j++)
+    {
+        vals_out[j] = rgamma(shape_par,scale_par,engine);
+    }
+#endif
 }
 
+#ifdef STATS_WITH_MATRIX_LIB
+template<typename mT, typename eT>
+statslib_inline
+mT
+rgamma(const uint_t n, const uint_t k, const eT shape_par, const eT scale_par)
+{
+    mT mat_out(n,k);
+
+    rgamma_int(shape_par,scale_par,mat_ops::get_mem_ptr(mat_out),n*k);
+
+    return mat_out;
+}
 #endif
