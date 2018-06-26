@@ -256,7 +256,7 @@ dsge<T>::mcmc_objfn(const arma::vec& pars_inp, void* mcmc_data)
 
 template<typename T>
 void
-dsge<T>::estim_mcmc(const arma::vec& initial_vals, mcmc::algo_settings* settings_inp)
+dsge<T>::estim_mcmc(const arma::vec& initial_vals, mcmc::algo_settings_t* settings_inp)
 {
 
     dsge_estim_data<T> mcmc_data;
@@ -265,7 +265,7 @@ dsge<T>::estim_mcmc(const arma::vec& initial_vals, mcmc::algo_settings* settings
     //
     // MCMC settings
 
-    mcmc::algo_settings settings;
+    mcmc::algo_settings_t settings;
 
     if (settings_inp) {
         settings = *settings_inp;
