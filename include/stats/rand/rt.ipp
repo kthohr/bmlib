@@ -27,7 +27,7 @@ statslib_inline
 T
 rt_int(const T dof_par, rand_engine_t& engine)
 {
-    T numer = rnorm<T>(T(0.1),T(1.0),engine);
+    T numer = rnorm<T>(T(0),T(1),engine);
     return numer / std::sqrt( rchisq<T>(dof_par,engine) / dof_par );
 }
 
@@ -87,7 +87,7 @@ rt(const uint_t n, const uint_t k, const eT dof_par)
 {
     mT mat_out(n,k);
 
-    rt_int(dof_par,mat_ops::get_mem_ptr(mat_out),n*k);
+    rt_int(dof_par,mat_ops::get_mem_ptr(mat_out),n*mat_ops::spacing(mat_out));
 
     return mat_out;
 }

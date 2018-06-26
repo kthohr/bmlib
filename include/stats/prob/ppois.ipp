@@ -30,10 +30,10 @@ statslib_constexpr
 T
 ppois_int_recur(const uint_t x, const T rate_par, const size_t r_count)
 {   // note: integer overflow can happen when calculating factorial values
-    return ( x == 0U ? T(1.0) :
-             x == 1U ? T(1.0) + rate_par :
+    return ( x == 0U ? T(1) :
+             x == 1U ? T(1) + rate_par :
              //
-             r_count == 0 ? T(1.0) + ppois_int_recur(x,rate_par,r_count+1) :
+             r_count == 0 ? T(1) + ppois_int_recur(x,rate_par,r_count+1) :
              r_count < x ? stmath::pow(rate_par,r_count) / gcem::factorial(r_count) + ppois_int_recur(x,rate_par,r_count+1) :  
                            stmath::pow(rate_par,r_count) / gcem::factorial(r_count) );
 }
@@ -43,16 +43,28 @@ statslib_constexpr
 T
 ppois_int(const int x, const T rate_par)
 {
-    return ( stmath::exp(-rate_par) * ppois_int_recur(x,rate_par,0U) );
+    return( rate_par > T(10) ? \
+            // switch to incomplete gamma function
+                T(1) - gcem::incomplete_gamma(T(x+1),rate_par) :
+            // else
+                stmath::exp(-rate_par) * ppois_int_recur(x,rate_par,0U) );
 }
 
 template<typename T>
 statslib_constexpr
 T
-ppois(const int x, const T rate_par, const bool log_form)
+ppois_check(const int x, const T rate_par, const bool log_form)
 {
     return ( log_form == false ? ppois_int(x,rate_par) : 
                                  stmath::log(ppois_int(x,rate_par)) );
+}
+
+template<typename T>
+statslib_constexpr
+return_t<T>
+ppois(const uint_t x, const T rate_par, const bool log_form)
+{
+    return ppois_check<return_t<T>>(x,rate_par,log_form);
 }
 
 //
@@ -95,7 +107,7 @@ ppois(const BlazeMat<Ta,To>& X, const Tb rate_par, const bool log_form)
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    ppois_int<Ta,Tb,Tc>(X.data(),rate_par,log_form,mat_out.data(),X.rows()*X.columns());
+    ppois_int<Ta,Tb,Tc>(X.data(),rate_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

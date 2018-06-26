@@ -30,7 +30,7 @@ statslib_constexpr
 T
 dunif_int(const T x, const T a_par, const T b_par, const bool log_form)
 {
-    return ( log_form == true ? - stmath::log(b_par - a_par) : T(1.0) / (b_par - a_par) );
+    return ( log_form == true ? - stmath::log(b_par - a_par) : T(1) / (b_par - a_par) );
 }
 
 template<typename Ta, typename Tb>
@@ -46,7 +46,7 @@ statslib_constexpr
 T
 dunif(const T x)
 {
-    return dunif(x,T(0.0),T(1.0));
+    return dunif(x,T(0),T(1));
 }
 
 //
@@ -89,7 +89,7 @@ dunif(const BlazeMat<Ta,To>& X, const Tb a_par, const Tb b_par, const bool log_f
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    dunif_int<Ta,Tb,Tc>(X.data(),a_par,b_par,log_form,mat_out.data(),X.rows()*X.columns());
+    dunif_int<Ta,Tb,Tc>(X.data(),a_par,b_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

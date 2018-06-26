@@ -33,12 +33,12 @@ qunif_int(const T p, const T a_par, const T b_par)
     return ( a_par + p*(b_par-a_par) );
 }
 
-template<typename T>
+template<typename Ta, typename Tb>
 statslib_constexpr
-T
-qunif(const T p, const T a_par, const T b_par)
+Ta
+qunif(const Ta p, const Tb a_par, const Tb b_par)
 {
-    return ( qunif_int(p,a_par,b_par) );
+    return qunif_int<Ta>(p,a_par,b_par);
 }
 
 //
@@ -81,7 +81,7 @@ qunif(const BlazeMat<Ta,To>& X, const Tb a_par, const Tb b_par)
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    qunif_int<Ta,Tb,Tc>(X.data(),a_par,b_par,mat_out.data(),X.rows()*X.columns());
+    qunif_int<Ta,Tb,Tc>(X.data(),a_par,b_par,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

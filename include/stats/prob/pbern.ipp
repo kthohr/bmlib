@@ -30,8 +30,8 @@ statslib_constexpr
 T
 pbern_int(const uint_t x, const T prob_par)
 {
-    return ( x >= 1U ? T(1.0) :
-                       T(1.0) - prob_par );
+    return ( x >= 1U ? T(1) :
+                       T(1) - prob_par );
 }
 
 template<typename T>
@@ -83,7 +83,7 @@ pbern(const BlazeMat<Ta,To>& X, const Tb prob_par, const bool log_form)
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    pbern_int<Ta,Tb,Tc>(X.data(),prob_par,log_form,mat_out.data(),X.rows()*X.columns());
+    pbern_int<Ta,Tb,Tc>(X.data(),prob_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

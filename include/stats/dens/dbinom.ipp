@@ -34,7 +34,7 @@ dbinom_int(const uint_t x, const uint_t n_trials_par, const T prob_par)
             x == n_trials_par ? x * stmath::log(prob_par) :
             //
             stmath::log(gcem::binomial_coef(n_trials_par,x)) + x*stmath::log(prob_par) \
-                + (n_trials_par - x)*stmath::log(T(1.0) - prob_par) );
+                + (n_trials_par - x)*stmath::log(T(1) - prob_par) );
 }
 
 template<typename T>
@@ -42,7 +42,7 @@ statslib_constexpr
 T
 dbinom(const uint_t x, const uint_t n_trials_par, const T prob_par, const bool log_form)
 {
-    return ( x > n_trials_par ? T(0.0) :
+    return ( x > n_trials_par ? T(0) :
              //
              n_trials_par == 1 ? dbern(x,prob_par,log_form) :
              //
@@ -90,7 +90,7 @@ dbinom(const BlazeMat<Ta,To>& X, const uint_t n_trials_par, const Tb prob_par, c
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    dbinom_int<Ta,Tb,Tc>(X.data(),n_trials_par,prob_par,log_form,mat_out.data(),X.rows()*X.columns());
+    dbinom_int<Ta,Tb,Tc>(X.data(),n_trials_par,prob_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

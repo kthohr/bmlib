@@ -27,7 +27,7 @@ statslib_inline
 T
 rchisq_int(const T dof_par, rand_engine_t& engine)
 {
-    return rgamma<T>(dof_par/T(2.0),T(2.0),engine);
+    return rgamma<T>(dof_par/T(2),T(2),engine);
 }
 
 template<typename T>
@@ -35,7 +35,7 @@ statslib_inline
 return_t<T>
 rchisq(const T dof_par, rand_engine_t& engine)
 {
-    return rchisq_int(return_t<T>(dof_par),engine);
+    return rchisq_int<return_t<T>>(dof_par,engine);
 }
 
 template<typename T>
@@ -44,8 +44,10 @@ return_t<T>
 rchisq(const T dof_par, uint_t seed_val)
 {
     rand_engine_t engine(seed_val);
-    return rchisq_int(return_t<T>(dof_par),engine);
+    return rchisq_int<return_t<T>>(dof_par,engine);
 }
+
+//
 
 template<typename T>
 void
@@ -84,7 +86,7 @@ rchisq(const uint_t n, const uint_t k, const eT dof_par)
 {
     mT mat_out(n,k);
 
-    rchisq_int(dof_par,mat_ops::get_mem_ptr(mat_out),n*k);
+    rchisq_int(dof_par,mat_ops::get_mem_ptr(mat_out),n*mat_ops::spacing(mat_out));
 
     return mat_out;
 }

@@ -31,7 +31,7 @@ T
 dbeta_int(const T x, const T a_par, const T b_par)
 {
     return ( - (stmath::lgamma(a_par) + stmath::lgamma(b_par) - stmath::lgamma(a_par+b_par)) \
-             + (a_par - T(1.0))*stmath::log(x) + (b_par - T(1.0))*stmath::log(T(1.0) - x) );
+             + (a_par - T(1))*stmath::log(x) + (b_par - T(1))*stmath::log(T(1) - x) );
 }
 
 template<typename T>
@@ -91,7 +91,7 @@ dbeta(const BlazeMat<Ta,To>& X, const Tb a_par, const Tb b_par, const bool log_f
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    dbeta_int<Ta,Tb,Tc>(X.data(),a_par,b_par,log_form,mat_out.data(),X.rows()*X.columns());
+    dbeta_int<Ta,Tb,Tc>(X.data(),a_par,b_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

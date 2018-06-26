@@ -24,19 +24,30 @@
 
 template<typename T>
 statslib_inline
-T
-rlogis(const T mu_par, const T sigma_par, rand_engine_t& engine)
+return_t<T>
+rlogis_int(const T mu_par, const T sigma_par, rand_engine_t& engine)
 {
-    return qlogis(runif<T>(T(0.0),T(1.0),engine),mu_par,sigma_par);
+    return qlogis(runif<T>(T(0),T(1),engine),mu_par,sigma_par);
 }
 
 template<typename T>
 statslib_inline
-T
+return_t<T>
+rlogis(const T mu_par, const T sigma_par, rand_engine_t& engine)
+{
+    return rlogis_int<return_t<T>>(mu_par,sigma_par,engine);
+}
+
+template<typename T>
+statslib_inline
+return_t<T>
 rlogis(const T mu_par, const T sigma_par, uint_t seed_val)
 {
-    return qlogis(runif<T>(T(0.0),T(1.0),seed_val),mu_par,sigma_par);
+    rand_engine_t engine(seed_val);
+    return rlogis_int<return_t<T>>(mu_par,sigma_par,engine);;
 }
+
+//
 
 template<typename T>
 statslib_inline
@@ -77,7 +88,7 @@ rlogis(const uint_t n, const uint_t k, const eT mu_par, const eT sigma_par)
 {
     mT mat_out(n,k);
 
-    rlogis_int(mu_par,sigma_par,mat_ops::get_mem_ptr(mat_out),n*k);
+    rlogis_int(mu_par,sigma_par,mat_ops::get_mem_ptr(mat_out),n*mat_ops::spacing(mat_out));
 
     return mat_out;
 }

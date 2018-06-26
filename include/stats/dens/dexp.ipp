@@ -38,8 +38,8 @@ statslib_constexpr
 T
 dexp_check(const T x, const T rate_par, const bool log_form)
 {
-    return ( log_form == true ? ( x < T(0.0) ? - STLIM<T>::infinity() : dexp_int(x,rate_par) ) :
-                                ( x < T(0.0) ? 0.0 : stmath::exp(dexp_int(x,rate_par)) ) );
+    return ( log_form == true ? ( x < T(0) ? - STLIM<T>::infinity() : dexp_int(x,rate_par) ) :
+                                ( x < T(0) ? T(0) : stmath::exp(dexp_int(x,rate_par)) ) );
 }
 
 template<typename Ta, typename Tb>
@@ -90,7 +90,7 @@ dexp(const BlazeMat<Ta,To>& X, const Tb rate_par, const bool log_form)
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    dexp_int<Ta,Tb,Tc>(X.data(),rate_par,log_form,mat_out.data(),X.rows()*X.columns());
+    dexp_int<Ta,Tb,Tc>(X.data(),rate_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

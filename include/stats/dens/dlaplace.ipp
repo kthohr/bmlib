@@ -36,10 +36,18 @@ dlaplace_int(const T x, const T mu_par, const T sigma_par)
 template<typename T>
 statslib_constexpr
 T
-dlaplace(const T x, const T mu_par, const T sigma_par, const bool log_form)
+dlaplace_check(const T x, const T mu_par, const T sigma_par, const bool log_form)
 {
     return ( log_form == true ? dlaplace_int(x,mu_par,sigma_par) :
                                 stmath::exp(dlaplace_int(x,mu_par,sigma_par)) );
+}
+
+template<typename Ta, typename Tb>
+statslib_constexpr
+return_t<Ta>
+dlaplace(const Ta x, const Tb mu_par, const Tb sigma_par, const bool log_form)
+{
+    return dlaplace_check<return_t<Ta>>(x,mu_par,sigma_par,log_form);
 }
 
 //
@@ -82,7 +90,7 @@ dlaplace(const BlazeMat<Ta,To>& X, const Tb mu_par, const Tb sigma_par, const bo
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    dlaplace_int<Ta,Tb,Tc>(X.data(),mu_par,sigma_par,log_form,mat_out.data(),X.rows()*X.columns());
+    dlaplace_int<Ta,Tb,Tc>(X.data(),mu_par,sigma_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

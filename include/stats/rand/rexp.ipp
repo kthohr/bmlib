@@ -25,18 +25,29 @@
 template<typename T>
 statslib_inline
 T
-rexp(const T rate_par, rand_engine_t& engine)
+rexp_int(const T rate_par, rand_engine_t& engine)
 {
-    return qexp<T>(runif<T>(T(0.0),T(1.0),engine),rate_par);
+    return qexp<T>(runif<T>(T(0),T(1),engine),rate_par);
 }
 
 template<typename T>
 statslib_inline
-T
+return_t<T>
+rexp(const T rate_par, rand_engine_t& engine)
+{
+    return rexp_int<return_t<T>>(rate_par,engine);
+}
+
+template<typename T>
+statslib_inline
+return_t<T>
 rexp(const T rate_par, uint_t seed_val)
 {
-    return qexp<T>(runif<T>(T(0.0),T(1.0),seed_val),rate_par);
+    rand_engine_t engine(seed_val);
+    return rexp_int<return_t<T>>(rate_par,engine);
 }
+
+//
 
 template<typename T>
 statslib_inline
@@ -77,7 +88,7 @@ rexp(const uint_t n, const uint_t k, const eT rate_par)
 {
     mT mat_out(n,k);
 
-    rexp_int(rate_par,mat_ops::get_mem_ptr(mat_out),n*k);
+    rexp_int(rate_par,mat_ops::get_mem_ptr(mat_out),n*mat_ops::spacing(mat_out));
 
     return mat_out;
 }

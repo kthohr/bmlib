@@ -31,7 +31,7 @@ T
 dchisq_int(const T x, const T dof_par)
 {
     return ( - stmath::lgamma(0.5*dof_par) - T(0.5)*dof_par*GCEM_LOG_2 \
-                + (T(0.5)*dof_par - T(1.0))*stmath::log(x) - x / 2.0 );
+                + (T(0.5)*dof_par - T(1))*stmath::log(x) - x / 2.0 );
 }
 
 template<typename T>
@@ -91,7 +91,7 @@ dchisq(const BlazeMat<Ta,To>& X, const Tb dof_par, const bool log_form)
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    dchisq_int<Ta,Tb,Tc>(X.data(),dof_par,log_form,mat_out.data(),X.rows()*X.columns());
+    dchisq_int<Ta,Tb,Tc>(X.data(),dof_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

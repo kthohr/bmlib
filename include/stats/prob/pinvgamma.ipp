@@ -30,16 +30,24 @@ statslib_constexpr
 T
 pinvgamma_int(const T x, const T shape_par, const T rate_par)
 {
-    return ( T(1.0) - gcem::incomplete_gamma(shape_par,rate_par/x) );
+    return ( T(1) - gcem::incomplete_gamma(shape_par,rate_par/x) );
 }
 
 template<typename T>
 statslib_constexpr
 T
-pinvgamma(const T x, const T shape_par, const T rate_par, const bool log_form)
+pinvgamma_check(const T x, const T shape_par, const T rate_par, const bool log_form)
 {
     return ( log_form == true ? stmath::log(pinvgamma_int(x,shape_par,rate_par)) :
                                 pinvgamma_int(x,shape_par,rate_par) );
+}
+
+template<typename Ta, typename Tb>
+statslib_constexpr
+return_t<Ta>
+pinvgamma(const Ta x, const Tb shape_par, const Tb rate_par, const bool log_form)
+{
+    return pinvgamma_check<return_t<Ta>>(x,shape_par,rate_par,log_form);
 }
 
 //
@@ -82,7 +90,7 @@ pinvgamma(const BlazeMat<Ta,To>& X, const Tb shape_par, const Tb rate_par, const
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    pinvgamma_int<Ta,Tb,Tc>(X.data(),shape_par,rate_par,log_form,mat_out.data(),X.rows()*X.columns());
+    pinvgamma_int<Ta,Tb,Tc>(X.data(),shape_par,rate_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

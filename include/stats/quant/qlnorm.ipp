@@ -28,9 +28,17 @@
 template<typename T>
 statslib_constexpr
 T
-qlnorm(const T p, const T mu_par, const T sigma_par)
+qlnorm_int(const T p, const T mu_par, const T sigma_par)
 {
     return stmath::exp(qnorm(p,mu_par,sigma_par));
+}
+
+template<typename Ta, typename Tb>
+statslib_constexpr
+Ta
+qlnorm(const Ta p, const Tb mu_par, const Tb sigma_par)
+{
+    return qlnorm_int<Ta>(p,mu_par,sigma_par);
 }
 
 //
@@ -73,7 +81,7 @@ qlnorm(const BlazeMat<Ta,To>& X, const Tb mu_par, const Tb sigma_par)
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    qlnorm_int<Ta,Tb,Tc>(X.data(),mu_par,sigma_par,mat_out.data(),X.rows()*X.columns());
+    qlnorm_int<Ta,Tb,Tc>(X.data(),mu_par,sigma_par,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

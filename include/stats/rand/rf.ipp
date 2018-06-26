@@ -38,7 +38,7 @@ statslib_inline
 return_t<T>
 rf(const T df1_par, const T df2_par, rand_engine_t& engine)
 {
-    return rf_int(return_t<T>(df1_par),return_t<T>(df2_par),engine);
+    return rf_int<return_t<T>>(df1_par,df2_par,engine);
 }
 
 template<typename T>
@@ -47,8 +47,10 @@ return_t<T>
 rf(const T df1_par, const T df2_par, uint_t seed_val)
 {
     rand_engine_t engine(seed_val);
-    return rf_int(return_t<T>(df1_par),return_t<T>(df2_par),engine);
+    return rf_int<return_t<T>>(df1_par,df2_par,engine);
 }
+
+//
 
 template<typename T>
 statslib_inline
@@ -89,7 +91,7 @@ rf(const uint_t n, const uint_t k, const eT df1_par, const eT df2_par)
 {
     mT mat_out(n,k);
 
-    rf_int(df1_par,df2_par,mat_ops::get_mem_ptr(mat_out),n*k);
+    rf_int(df1_par,df2_par,mat_ops::get_mem_ptr(mat_out),n*mat_ops::spacing(mat_out));
 
     return mat_out;
 }

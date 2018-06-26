@@ -28,10 +28,18 @@
 template<typename T>
 statslib_constexpr
 T
-dlnorm(const T x, const T mu_par, const T sigma_par, const bool log_form)
+dlnorm_check(const T x, const T mu_par, const T sigma_par, const bool log_form)
 {
     return ( log_form == true ? dnorm(stmath::log(x),mu_par,sigma_par,true) - stmath::log(x) :
                                 dnorm(stmath::log(x),mu_par,sigma_par,false) / x );
+}
+
+template<typename Ta, typename Tb>
+statslib_constexpr
+return_t<Ta>
+dlnorm(const Ta x, const Tb mu_par, const Tb sigma_par, const bool log_form)
+{
+    return dlnorm_check<return_t<Ta>>(x,mu_par,sigma_par,log_form);
 }
 
 //
@@ -74,7 +82,7 @@ dlnorm(const BlazeMat<Ta,To>& X, const Tb mu_par, const Tb sigma_par, const bool
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    dlnorm_int<Ta,Tb,Tc>(X.data(),mu_par,sigma_par,log_form,mat_out.data(),X.rows()*X.columns());
+    dlnorm_int<Ta,Tb,Tc>(X.data(),mu_par,sigma_par,log_form,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

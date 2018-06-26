@@ -22,12 +22,7 @@
  * Sample from an inverse-Wishart distribution
  */
 
-#ifdef STATS_USE_ARMA
-template<typename mT, typename pT,
-         typename std::enable_if<!(std::is_same<mT,arma::mat>::value)>::type*>
-#else
-template<typename mT, typename pT>
-#endif
+template<typename mT, typename pT, typename not_arma_mat<mT>::type*>
 statslib_inline
 mT
 rinvwish(const mT& Psi_par, const pT nu_par, const bool pre_chol)
@@ -51,7 +46,7 @@ rinvwish(const mT& Psi_par, const pT nu_par, const bool pre_chol)
 
     for (uint_t i=1U; i < K; i++) {
         for (uint_t j=0U; j < i; j++) {
-            A(i,j) = rnorm<eT>(eT(0.0),eT(1.0),engine);
+            A(i,j) = rnorm<eT>(eT(0),eT(1),engine);
         }
     }
     
@@ -86,7 +81,7 @@ rinvwish(const ArmaMat<eT>& Psi_par, const pT nu_par, const bool pre_chol)
 
     for (uint_t i=1U; i < K; i++) {
         for (uint_t j=0U; j < i; j++) {
-            A(i,j) = rnorm<eT>(eT(0.0),eT(1.0),engine);
+            A(i,j) = rnorm<eT>(eT(0),eT(1),engine);
         }
     }
     

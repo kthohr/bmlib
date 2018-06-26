@@ -30,17 +30,25 @@ statslib_constexpr
 T
 qchisq_int(const T p, const T dof_par)
 {
-    return ( 2*gcem::incomplete_gamma_inv(dof_par/T(2.0),p) );
+    return ( 2*gcem::incomplete_gamma_inv(dof_par/T(2),p) );
 }
 
 template<typename T>
 statslib_constexpr
 T
-qchisq(const T p, const T dof_par)
+qchisq_check(const T p, const T dof_par)
 {
-    return ( STLIM<T>::epsilon() > p ? T(0.0) :
+    return ( STLIM<T>::epsilon() > p ? T(0) :
              //
              qchisq_int(p,dof_par) );
+}
+
+template<typename Ta, typename Tb>
+statslib_constexpr
+Ta
+qchisq(const Ta p, const Tb dof_par)
+{
+    return qchisq_check<Ta>(p,dof_par);
 }
 
 //
@@ -83,7 +91,7 @@ qchisq(const BlazeMat<Ta,To>& X, const Tb dof_par)
 {
     BlazeMat<Tc,To> mat_out(X.rows(),X.columns());
 
-    qchisq_int<Ta,Tb,Tc>(X.data(),dof_par,mat_out.data(),X.rows()*X.columns());
+    qchisq_int<Ta,Tb,Tc>(X.data(),dof_par,mat_out.data(),X.rows()*X.spacing());
 
     return mat_out;
 }

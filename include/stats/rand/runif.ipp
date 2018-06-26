@@ -24,14 +24,22 @@
 
 template<typename T>
 statslib_inline
+T
+runif_int(const T a_par, const T b_par, rand_engine_t& engine)
+{
+    // convert from [a,b) to (a,b)
+    T a_par_adj = std::nextafter(a_par, b_par);
+    std::uniform_real_distribution<T> unif_dist(a_par_adj, b_par);
+
+    return unif_dist(engine);
+}
+
+template<typename T>
+statslib_inline
 return_t<T>
 runif(const T a_par, const T b_par, rand_engine_t& engine)
 {
-    // convert from [a,b) to (a,b)
-    return_t<T> a_par_adj = std::nextafter(return_t<T>(a_par), return_t<T>(b_par));
-    std::uniform_real_distribution<T> unif_dist(a_par_adj, return_t<T>(b_par));
-
-    return unif_dist(engine);
+    return runif_int<return_t<T>>(a_par,b_par,engine);
 }
 
 template<typename T>
@@ -40,7 +48,7 @@ return_t<T>
 runif(const T a_par, const T b_par, uint_t seed_val)
 {
     rand_engine_t engine(seed_val);
-    return runif(a_par,b_par,engine);
+    return runif_int<return_t<T>>(a_par,b_par,engine);
 }
 
 template<typename T>
@@ -48,8 +56,10 @@ statslib_inline
 T
 runif()
 {
-    return runif<T>(T(0.0),T(1.0));
+    return runif<T>(T(0),T(1));
 }
+
+//
 
 template<typename T>
 statslib_inline
@@ -90,7 +100,7 @@ runif(const uint_t n, const uint_t k, const eT a_par, const eT b_par)
 {
     mT mat_out(n,k);
 
-    runif_int(a_par,b_par,mat_ops::get_mem_ptr(mat_out),n*k);
+    runif_int(a_par,b_par,mat_ops::get_mem_ptr(mat_out),n*mat_ops::spacing(mat_out));
 
     return mat_out;
 }
