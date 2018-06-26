@@ -1,5 +1,5 @@
 #!/bin/bash
-## BMLib tests config script
+## BM++ tests config script
 
 # inputs
 while getopts cdgm:o:p option; do
@@ -103,7 +103,7 @@ if [[ "${BM_BUILD}" == "dev" ]]; then
     BM_INSTALL_PATH=${PWD}
     cd ${WDIR}
 else
-    BM_INCLUDE_PATH="/usr/local/include/bmlib"
+    BM_INCLUDE_PATH="/usr/local/include/BM++"
     BM_INSTALL_PATH="/usr/local/lib"
 fi
 

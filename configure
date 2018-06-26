@@ -1,15 +1,35 @@
 #!/bin/bash
-## BMLib config script
+## BM++ config script
 
-# inputs
-while getopts cdgm:o:p option; do
+function print_help
+{ 
+    echo "" ;
+    echo -e "\x1B[32mBM++ Configuration Options:\033[0m" >&2 ;
+    echo "-c    Coverage build" ;
+    echo "-d    Development build" ;
+    echo "-g    Debugging build (optimization flags set to -O0 -g)" ;
+    echo "-h    Print help" ;
+    echo "-i    Install path (default: current directory)" ;
+    echo "        Example: /usr/local" ;
+    echo "-m    Specify the BLAS and Lapack libraries to link against" ; 
+    echo "        Examples: -m \"-lopenblas\" or -m \"-framework Accelerate\"" ;
+    echo "-o    Compiler optimization options; defaults to:" ;
+    echo "        -O3 -march=native -ffp-contract=fast -flto -DARMA_NO_DEBUG" ;
+    echo "-p    Enable OpenMP parallelization features" ;
+    echo "" ;
+}
+
+while getopts hcdgi:m:o:p option; do
     case "${option}" in
-        c) BM_COVERAGE="y";;
-        d) BM_BUILD="dev";;
-        g) BM_DEBUG="y";;
+        h) print_help; exit 2;;
+        c) BM_COVERAGE_BUILD="y";;
+        d) BM_DEV_BUILD="y";;
+        g) BM_DEBUG_BUILD="y";;
+        i) BM_INSTALL_PATH=${OPTARG};;
         m) BM_MATRIX_OPS=${OPTARG};;
         o) BM_OPT=${OPTARG};;
         p) BM_PARALLEL="y";;
+        ?) print_help; exit 2;;
     esac
 done
 
@@ -23,27 +43,18 @@ if [ -z ${FC+x} ]; then
     FC=gfortran
 fi
 
+#
+
+echo ""
+echo -e "\x1B[32mBM++ Configuration...\033[0m" >&2 ;
+echo ""
+
 # compiler checks
 
 IS_DARWIN=$($CXX -dumpmachine 2>&1 | grep -i -c "darwin")
 GCC_COMPILER=$($CXX --version 2>&1 | grep -i -c -E "gcc")
-# APPLE_COMPILER=$($CXX --version 2>&1 | grep -i -c -E 'apple llvm')
-
-# announcements
-
-echo ""
-
-if [[ "${BM_COVERAGE}" == "y" ]]; then 
-    echo "BM: coverage build"
-fi
-
-if [[ "${BM_BUILD}" == "dev" ]]; then
-    echo "BM: dev version"
-fi
-
-if [[ "${BM_DEBUG}" == "y" ]]; then
-    echo "BM: debug build"
-fi
+CLANG_COMPILER=$($CXX --version 2>&1 | grep -i -c -E "clang")
+APPLE_COMPILER=$($CXX --version 2>&1 | grep -i -c -E 'apple llvm')
 
 # get working directory
 WDIR=${PWD}
@@ -62,38 +73,36 @@ if [ -z ${ARMA_INCLUDE_PATH+x} ]; then
     done
 
     if [[ $ARMA_INCLUDE_PATH == "" ]]; then
-        echo ""
-        echo "BM: cannot find armadillo files. Cloning from GitHub"
+        echo -e "\x1B[31m  - note: cannot find Armadillo files. Cloning from GitLab\033[0m" >&2 ;
         echo ""
 
         mkdir ${WDIR}/arma_tmp
-        git clone -b unstable --single-branch https://github.com/conradsnicta/armadillo-code ${WDIR}/arma_tmp
+        git clone -b unstable --single-branch https://gitlab.com/conradsnicta/armadillo-code.git ${WDIR}/arma_tmp > /dev/null 2>&1
         mv ${WDIR}/arma_tmp/include/* ${WDIR}/include
         rm -rf ${WDIR}/arma_tmp
         ARMA_INCLUDE_PATH="./include"
-
-        echo ""
     fi
 fi
 
-echo "BM: ARMA_INCLUDE_PATH set to: ${ARMA_INCLUDE_PATH}"
+# set build and optimization flags
 
-# set build and BMization flags
-
-if [[ "${BM_COVERAGE}" == "y" ]]; then 
-    BM_OPT_FLAGS="-g -O0 --coverage -fno-inline -fno-inline-small-functions -fno-default-inline"
+if [[ "${BM_COVERAGE_BUILD}" == "y" ]]; then 
+    if [ "$GCC_COMPILER" -eq "1" ]; then
+        BM_OPT_FLAGS="-g -O0 --coverage -fno-inline -fno-inline-small-functions -fno-default-inline"
+    else # clang:
+        BM_OPT_FLAGS="-g -O0 --coverage -fno-inline"
+    fi
+elif [[ "${BM_DEBUG_BUILD}" == "y" ]]; then
+    BM_OPT_FLAGS="-O0 -g"
 else
     if [[ "${BM_OPT}" == "" ]]; then
-        # BM_OPT_FLAGS="-Ofast -march=native -DARMA_NO_DEBUG"
-        # echo "BM: experimental BMization; use of NaN or +/-Inf not recognized"
-        BM_OPT_FLAGS="-O3 -march=native -ffp-contract=fast -flto -DARMA_NO_DEBUG -DARMA_USE_CXX11"
+        BM_OPT_FLAGS="-O3 -march=native -ffp-contract=fast -flto -DNDEBUG -DARMA_NO_DEBUG"
     else
         BM_OPT_FLAGS="${BM_OPT}"
     fi
 
     if [[ "${BM_PARALLEL}" == "y" ]]; then
-        echo "BM: using OpenMP"
-        BM_OPT_FLAGS="${BM_OPT_FLAGS} -fopenmp -DOPTIM_USE_OMP -DMCMC_USE_OMP -DARMA_USE_OPENMP"
+        BM_OPT_FLAGS="${BM_OPT_FLAGS} -fopenmp"
     fi
 fi
 
@@ -101,32 +110,24 @@ BM_WARN_FLAGS="-Wall"
 
 # shared library name and install path
 
-BM_SHLIB_NAME="libbm.so"
+BM_SHLIB_NAME="liboptim.so"
 
-if [[ !("${BM_BUILD}" == "dev") ]]; then
-    if [ -z ${BM_INSTALL_PATH+x} ]; then
-        BM_INSTALL_PATH="/usr/local"
-    fi
-    echo ""
-    echo "BM: install path set to: ${BM_INSTALL_PATH}"
+if [[ "${BM_INSTALL_PATH}" == "" ]]; then
+    BM_INSTALL_PATH="${WDIR}"
+    BM_INSTALL_LIB_PATH="${WDIR}"
+else
+    BM_INSTALL_LIB_PATH="${BM_INSTALL_PATH}/lib"
 fi
 
 if [[ $OSTYPE == darwin* ]] ; then
-    if [[ "${BM_BUILD}" == "dev" ]]; then
-        BM_SHLIB_FLAGS="-dynamiclib -install_name ${WDIR}/${BM_SHLIB_NAME} -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress"
-    else
-        BM_SHLIB_FLAGS="-dynamiclib -install_name ${BM_INSTALL_PATH}/lib/${BM_SHLIB_NAME} -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress"
-    fi
 
+    BM_SHLIB_FLAGS="-dynamiclib -install_name ${BM_INSTALL_LIB_PATH}/${BM_SHLIB_NAME} -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress"
     BM_BLAS_LAPACK="-framework Accelerate"
-elif [[ $OSTYPE == *linux* ]] ; then
-    BM_OPT_FLAGS="-fPIC ${BM_OPT_FLAGS}"
 
-    if [[ "${BM_BUILD}" == "dev" ]]; then
-        BM_SHLIB_FLAGS="-fPIC -shared -L${WDIR} -Wl,-Bsymbolic-functions -Wl,-z,relro "
-    else
-        BM_SHLIB_FLAGS="-fPIC -shared -L${BM_INSTALL_PATH}/lib -Wl,-Bsymbolic-functions -Wl,-z,relro"
-    fi
+elif [[ $OSTYPE == *linux* ]] ; then
+
+    BM_OPT_FLAGS="-fPIC ${BM_OPT_FLAGS}"
+    BM_SHLIB_FLAGS="-fPIC -shared -L${BM_INSTALL_LIB_PATH} -Wl,-Bsymbolic-functions -Wl,-z,relro"
 
     BM_BLAS_LAPACK="-lblas -llapack"
 else
@@ -135,33 +136,74 @@ fi
 
 if [[ !(-z ${BM_MATRIX_OPS+x}) ]]; then
     BM_BLAS_LAPACK="${BM_MATRIX_OPS}"
-    echo ""
-    echo "BM: BLAS and Lapack libraries set to ${BM_BLAS_LAPACK}"
 fi
 
 if [ "$IS_DARWIN" -eq "1" ] && [ "$GCC_COMPILER" -eq "1" ]; then
-    echo ""
-    echo "BM: To enable AVX features, your compiler will use the Apple LLVM assembler"
     BM_OPT_FLAGS="-Wa,-q ${BM_OPT_FLAGS}"
 fi
 
 # final optimization checks
 
-if [[ "${BM_DEBUG}" == "y" ]]; then
-    BM_OPT_FLAGS="-O0 -g"
-fi
-
-if [[ "${BM_COVERAGE}" == "y" ]]; then 
+if [[ "${BM_COVERAGE_BUILD}" == "y" ]]; then 
     BM_SHLIB_FLAGS="--coverage ${BM_SHLIB_FLAGS}"
 else
     BM_SHLIB_FLAGS="${BM_OPT_FLAGS} ${BM_SHLIB_FLAGS}"
 fi
 
-echo "BM: optimization flags set to: ${BM_OPT_FLAGS}"
+#
+# final print:
 
-# end
+echo "  - OS:            ${OSTYPE}"
+echo "  - C++ compiler:  ${CXX}"
+
+if [[ "${BM_DEV_BUILD}" == "y" ]]; then
+    echo "  - Build version: development"
+elif [[ "${BM_COVERAGE_BUILD}" == "y" ]]; then
+    echo "  - Build version: coverage"
+elif [[ "${BM_DEBUG_BUILD}" == "y" ]]; then
+    echo "  - Build version: debug"
+else
+    echo "  - Build version: release"
+fi
 
 echo ""
+
+echo "  - ARMA_INCLUDE_PATH set to:"
+echo "    ${ARMA_INCLUDE_PATH}"
+echo "  - BLAS and Lapack libraries set to:"
+echo "    ${BM_BLAS_LAPACK}"
+
+echo ""
+
+if [[ "${BM_PARALLEL}" == "y" ]]; then
+    echo -e "  - OpenMP features: \x1B[32menabled\033[0m" >&2 ;
+else
+    echo -e "  - OpenMP features: \x1B[31mdisabled\033[0m" >&2 ;
+fi
+
+echo "  - optimization flags:"
+echo "    ${BM_OPT_FLAGS}"
+
+echo ""
+
+echo "  - BM++ install path:"
+echo "    ${BM_INSTALL_PATH}"
+
+echo ""
+echo "  - Additional notes:"
+
+if [ "$APPLE_COMPILER" -eq "1" ] && [[ "${BM_PARALLEL}" == "y" ]]; then
+    echo -e "    \x1B[31m- You have enabled OpenMP, but your C++ compiler does not\033[0m" >&2 ;
+    echo -e "    \x1B[31m  support this feature!\033[0m" >&2 ;
+fi
+
+if [ "$IS_DARWIN" -eq "1" ] && [ "$GCC_COMPILER" -eq "1" ]; then
+    echo "    - To enable AVX features, your compiler will use the Apple LLVM"
+    echo "      assembler"
+fi
+
+echo ""
+echo -e "\x1B[32mConfiguration completed. Creating Makefile... \c\033[0m" >&2 ;
 
 sed -e "s|@CC@|${CC}|" \
     -e "s|@CXX@|${CXX}|" \
@@ -174,3 +216,6 @@ sed -e "s|@CC@|${CC}|" \
     -e "s|@BM_SHLIB_FLAGS@|${BM_SHLIB_FLAGS}|" \
     -e "s|@BM_INSTALL_PATH@|${BM_INSTALL_PATH}|" \
     Makefile.in > Makefile
+
+echo -e "\x1B[32mdone.\033[0m" >&2 ;
+echo ""

@@ -83,5 +83,5 @@ clean:
 .PHONY: install
 install: $(SHLIB)
 	@cp $(BM_DIR)/$(SHLIB) $(INSTALL_PATH)/lib/$(SHLIB)
-	@mkdir -p $(INSTALL_PATH)/include/bmlib
-	@cp -r $(BM_DIR)/headers/* $(INSTALL_PATH)/include/bmlib
+	@mkdir -p $(INSTALL_PATH)/include/BM++
+	@cp -r $(BM_DIR)/headers/* $(INSTALL_PATH)/include/BM++

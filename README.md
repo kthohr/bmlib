@@ -1,2 +1,2 @@
-# bmlib
+# BM++
 Bayesian Macroeconometrics C++ Library
